@@ -1,0 +1,22 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Arquivos temporários
+tmp/
+temp/
+
+# Build
+dist/
+build/
+
+# Cache
+.cache/
