@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
+const registroRoutes = require("./routes/registro.routes");
 const userRoutes = require("./routes/user.routes");
 require("dotenv").config();
 
@@ -12,6 +13,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.use(userRoutes);
+app.use("/users", userRoutes);
+app.use("/registros", registroRoutes);
 
 module.exports = app;
