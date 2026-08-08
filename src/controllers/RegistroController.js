@@ -114,7 +114,15 @@ class RegistroController {
 
   async meusRegistros(req, res) {
     try {
-      const registros = await RegistroModel.findByUserId(req.user.id);
+      const { data, mes, ano, inicio, fim } = req.query;
+
+      const registros = await RegistroModel.findByUserId(req.user.id, {
+        data,
+        mes,
+        ano,
+        inicio,
+        fim,
+      });
 
       return res.status(200).json(registros);
     } catch (error) {

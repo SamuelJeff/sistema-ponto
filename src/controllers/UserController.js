@@ -78,6 +78,7 @@ class UserController {
       const token = jwt.sign(
         {
           id: usuario.id,
+          cargo: usuario.cargo
         },
         process.env.JWT_SECRET,
         {
