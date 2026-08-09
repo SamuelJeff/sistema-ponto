@@ -3,18 +3,23 @@ const jwt = require("jsonwebtoken");
 const UserModel = require("../models/UserModel");
 
 class UserController {
-  async register(req, res) {
+  async register(req, res, next) {
     try {
       const { nome, email, senha, cargo } = req.body;
 
-      // 1. Validar campos
-      if (!nome || !email || !senha || !cargo) {
+      // 1. Validar campos obrigatórios
+      if (
+        !nome?.trim() ||
+        !email?.trim() ||
+        !senha?.trim() ||
+        !cargo?.trim()
+      ) {
         return res.status(400).json({
-          message: "Todos os campos são obrigatórios.",
+          message: "Nome, e-mail, senha e cargo são obrigatórios.",
         });
       }
 
-      // 2. Verificar e-mail
+      // 2. Verificar se o e-mail já está cadastrado
       const usuarioExiste = await UserModel.findByEmail(email);
 
       if (usuarioExiste) {
@@ -39,14 +44,11 @@ class UserController {
         message: "Usuário cadastrado com sucesso.",
       });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        message: "Erro interno do servidor.",
-      });
+      next(error);
     }
   }
 
-  async login(req, res) {
+  async login(req, res, next) {
     try {
       const { email, senha } = req.body;
 
@@ -74,30 +76,29 @@ class UserController {
           message: "E-mail ou senha inválidos.",
         });
       }
-      // Gerar o token
+
+      // Gerar token
       const token = jwt.sign(
         {
           id: usuario.id,
-          cargo: usuario.cargo
+          cargo: usuario.cargo,
         },
         process.env.JWT_SECRET,
         {
           expiresIn: "1d",
         },
       );
+
       return res.status(200).json({
         message: "Login realizado com sucesso.",
         token,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: "Erro interno do servidor.",
-      });
+      next(error);
     }
   }
-  async profile(req, res) {
+
+  async profile(req, res, next) {
     try {
       const usuario = await UserModel.findById(req.user.id);
 
@@ -114,11 +115,7 @@ class UserController {
         cargo: usuario.cargo,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: "Erro interno do servidor.",
-      });
+      next(error);
     }
   }
 }
