@@ -1,4 +1,5 @@
 const RegistroService = require("../services/RegistroService");
+const CalculoHorasService = require("../services/CalculoHorasService");
 const UserModel = require("../models/UserModel");
 const { formatarDataRecife } = require("../utils/date");
 
@@ -13,14 +14,29 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      const registros = await RegistroService.meusRegistros(id);
+      const { data, mes, ano, inicio, fim } = req.query;
+
+      const registros = await RegistroService.meusRegistros(id, {
+        data,
+        mes,
+        ano,
+        inicio,
+        fim,
+      });
 
       const registrosFormatados = registros.map((registro) => ({
         tipo: registro.tipo,
         data_hora: formatarDataRecife(registro.data_hora),
       }));
 
-      return res.status(200).json(registrosFormatados);
+      const calculos = CalculoHorasService.calcularHorasPorDia(registros);
+      const resumo = CalculoHorasService.calcularResumoPeriodo(calculos);
+
+      return res.status(200).json({
+        registros: registrosFormatados,
+        calculos,
+        resumo,
+      });
     } catch (error) {
       next(error);
     }

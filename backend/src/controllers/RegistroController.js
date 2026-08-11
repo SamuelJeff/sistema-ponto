@@ -1,4 +1,5 @@
 const RegistroService = require("../services/RegistroService");
+const CalculoHorasService = require("../services/CalculoHorasService");
 const { formatarDataRecife } = require("../utils/date");
 
 class RegistroController {
@@ -21,10 +22,7 @@ class RegistroController {
 
   async registrarPonto(req, res, next, tipo) {
     try {
-      await RegistroService.registrarPonto(
-        req.user.id,
-        tipo
-      );
+      await RegistroService.registrarPonto(req.user.id, tipo);
 
       return res.status(201).json({
         message: this.mensagens.sucesso[tipo],
@@ -35,73 +33,45 @@ class RegistroController {
   }
 
   async entrada(req, res, next) {
-    return this.registrarPonto(
-      req,
-      res,
-      next,
-      "entrada"
-    );
+    return this.registrarPonto(req, res, next, "entrada");
   }
 
   async inicioAlmoco(req, res, next) {
-    return this.registrarPonto(
-      req,
-      res,
-      next,
-      "inicio_almoco"
-    );
+    return this.registrarPonto(req, res, next, "inicio_almoco");
   }
 
   async fimAlmoco(req, res, next) {
-    return this.registrarPonto(
-      req,
-      res,
-      next,
-      "fim_almoco"
-    );
+    return this.registrarPonto(req, res, next, "fim_almoco");
   }
 
   async saida(req, res, next) {
-    return this.registrarPonto(
-      req,
-      res,
-      next,
-      "saida"
-    );
+    return this.registrarPonto(req, res, next, "saida");
   }
 
   async meusRegistros(req, res, next) {
     try {
-      const {
+      const { data, mes, ano, inicio, fim } = req.query;
+
+      const registros = await RegistroService.meusRegistros(req.user.id, {
         data,
         mes,
         ano,
         inicio,
         fim,
-      } = req.query;
+      });
 
-      const registros =
-        await RegistroService.meusRegistros(
-          req.user.id,
-          {
-            data,
-            mes,
-            ano,
-            inicio,
-            fim,
-          }
-        );
+      const registrosFormatados = registros.map((registro) => ({
+        tipo: registro.tipo,
+        data_hora: formatarDataRecife(registro.data_hora),
+      }));
 
-      const registrosFormatados = registros.map(
-        (registro) => ({
-          tipo: registro.tipo,
-          data_hora: formatarDataRecife(
-            registro.data_hora
-          ),
-        })
-      );
-
-      return res.status(200).json(registrosFormatados);
+      const calculos = CalculoHorasService.calcularHorasPorDia(registros);
+      const resumo = CalculoHorasService.calcularResumoPeriodo(calculos);
+      return res.status(200).json({
+        registros: registrosFormatados,
+        calculos,
+        resumo,
+      });
     } catch (error) {
       next(error);
     }
