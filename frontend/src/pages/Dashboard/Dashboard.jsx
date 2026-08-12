@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
 
 import { AuthContext } from "../../contexts/AuthContext";
 import api from "../../services/api";
@@ -129,105 +130,199 @@ function Dashboard() {
     descobrirProximoRegistro();
 
   return (
-    <div>
-      <h1>Sistema de Ponto</h1>
+    <main className="dashboard-page">
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <div>
+            <p className="dashboard-subtitle">
+              Sistema de Ponto
+            </p>
 
-      <h2>
-        Olá, {usuario?.nome}!
-      </h2>
+            <h1>
+              Olá, {usuario?.nome}!
+            </h1>
+          </div>
 
-      <p>
-        E-mail: {usuario?.email}
-      </p>
+          <button
+            className="dashboard-logout"
+            onClick={handleLogout}
+          >
+            Sair
+          </button>
+        </header>
 
-      <p>
-        Cargo: {usuario?.cargo}
-      </p>
+        <section className="dashboard-user-card">
+          <div>
+            <span>E-mail</span>
+            <strong>{usuario?.email}</strong>
+          </div>
 
-      <hr />
+          <div>
+            <span>Cargo</span>
+            <strong>{usuario?.cargo}</strong>
+          </div>
+        </section>
 
-      <h2>Registrar Ponto</h2>
+        <section className="dashboard-card">
+          <div className="dashboard-card-header">
+            <div>
+              <h2>Registrar ponto</h2>
 
-      {mensagem && (
-        <p>{mensagem}</p>
-      )}
+              <p>
+                Registre as etapas da sua jornada de hoje.
+              </p>
+            </div>
+          </div>
 
-      {erro && (
-        <p>{erro}</p>
-      )}
+          {mensagem && (
+            <div className="dashboard-message dashboard-message-success">
+              {mensagem}
+            </div>
+          )}
 
-      <button
-        onClick={() =>
-          registrarPonto("entrada")
-        }
-        disabled={
-          carregando ||
-          proximoRegistro !== "entrada"
-        }
-      >
-        Registrar Entrada
-      </button>
+          {erro && (
+            <div className="dashboard-message dashboard-message-error">
+              {erro}
+            </div>
+          )}
 
-      <button
-        onClick={() =>
-          registrarPonto("inicio-almoco")
-        }
-        disabled={
-          carregando ||
-          proximoRegistro !== "inicio_almoco"
-        }
-      >
-        Início do Almoço
-      </button>
+          <div className="dashboard-punch-grid">
+            <button
+              className="punch-button"
+              onClick={() =>
+                registrarPonto("entrada")
+              }
+              disabled={
+                carregando ||
+                proximoRegistro !== "entrada"
+              }
+            >
+              <span className="punch-number">
+                01
+              </span>
 
-      <button
-        onClick={() =>
-          registrarPonto("fim-almoco")
-        }
-        disabled={
-          carregando ||
-          proximoRegistro !== "fim_almoco"
-        }
-      >
-        Fim do Almoço
-      </button>
+              <span className="punch-title">
+                Entrada
+              </span>
 
-      <button
-        onClick={() =>
-          registrarPonto("saida")
-        }
-        disabled={
-          carregando ||
-          proximoRegistro !== "saida"
-        }
-      >
-        Registrar Saída
-      </button>
+              <span className="punch-description">
+                Iniciar jornada
+              </span>
+            </button>
 
-      {proximoRegistro === null && (
-        <p>
-          Jornada de hoje concluída.
-        </p>
-      )}
+            <button
+              className="punch-button"
+              onClick={() =>
+                registrarPonto(
+                  "inicio-almoco"
+                )
+              }
+              disabled={
+                carregando ||
+                proximoRegistro !==
+                  "inicio_almoco"
+              }
+            >
+              <span className="punch-number">
+                02
+              </span>
 
-      <hr />
+              <span className="punch-title">
+                Início do almoço
+              </span>
 
-      <button onClick={irParaHistorico}>
-        Meu Histórico
-      </button>
+              <span className="punch-description">
+                Iniciar intervalo
+              </span>
+            </button>
 
-      {usuario?.cargo === "Administrador" && (
-        <button onClick={irParaAdmin}>
-          Área Administrativa
-        </button>
-      )}
+            <button
+              className="punch-button"
+              onClick={() =>
+                registrarPonto(
+                  "fim-almoco"
+                )
+              }
+              disabled={
+                carregando ||
+                proximoRegistro !==
+                  "fim_almoco"
+              }
+            >
+              <span className="punch-number">
+                03
+              </span>
 
-      <hr />
+              <span className="punch-title">
+                Fim do almoço
+              </span>
 
-      <button onClick={handleLogout}>
-        Sair
-      </button>
-    </div>
+              <span className="punch-description">
+                Retornar do intervalo
+              </span>
+            </button>
+
+            <button
+              className="punch-button"
+              onClick={() =>
+                registrarPonto("saida")
+              }
+              disabled={
+                carregando ||
+                proximoRegistro !== "saida"
+              }
+            >
+              <span className="punch-number">
+                04
+              </span>
+
+              <span className="punch-title">
+                Saída
+              </span>
+
+              <span className="punch-description">
+                Encerrar jornada
+              </span>
+            </button>
+          </div>
+
+          {proximoRegistro === null && (
+            <div className="dashboard-finished">
+              Jornada de hoje concluída.
+            </div>
+          )}
+        </section>
+
+        <section className="dashboard-navigation">
+          <button
+            className="dashboard-navigation-card"
+            onClick={irParaHistorico}
+          >
+            <span>Meu Histórico</span>
+
+            <small>
+              Consulte seus registros e horas trabalhadas.
+            </small>
+          </button>
+
+          {usuario?.cargo ===
+            "Administrador" && (
+            <button
+              className="dashboard-navigation-card"
+              onClick={irParaAdmin}
+            >
+              <span>
+                Área Administrativa
+              </span>
+
+              <small>
+                Consulte usuários e registros.
+              </small>
+            </button>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }
 

@@ -8,11 +8,16 @@ function obterDataRecife(dataHora) {
 }
 
 function formatarSegundos(totalSegundos) {
-  const horas = Math.floor(totalSegundos / 3600);
+  const horas = Math.floor(
+    totalSegundos / 3600
+  );
 
-  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const minutos = Math.floor(
+    (totalSegundos % 3600) / 60
+  );
 
-  const segundos = totalSegundos % 60;
+  const segundos =
+    totalSegundos % 60;
 
   return (
     `${String(horas).padStart(2, "0")}:` +
@@ -31,9 +36,12 @@ function calcularHorasTrabalhadas(registros) {
     };
   }
 
-  const registrosOrdenados = [...registros].sort(
-    (a, b) => new Date(a.data_hora).getTime() - new Date(b.data_hora).getTime(),
-  );
+  const registrosOrdenados =
+    [...registros].sort(
+      (a, b) =>
+        new Date(a.data_hora).getTime() -
+        new Date(b.data_hora).getTime()
+    );
 
   let entrada = null;
   let inicioAlmoco = null;
@@ -41,12 +49,19 @@ function calcularHorasTrabalhadas(registros) {
   let saida = null;
 
   for (const registro of registrosOrdenados) {
-    if (registro.tipo === "entrada" && !entrada) {
+    if (
+      registro.tipo === "entrada" &&
+      !entrada
+    ) {
       entrada = registro;
       continue;
     }
 
-    if (registro.tipo === "inicio_almoco" && entrada && !inicioAlmoco) {
+    if (
+      registro.tipo === "inicio_almoco" &&
+      entrada &&
+      !inicioAlmoco
+    ) {
       inicioAlmoco = registro;
       continue;
     }
@@ -73,7 +88,12 @@ function calcularHorasTrabalhadas(registros) {
     }
   }
 
-  if (!entrada || !inicioAlmoco || !fimAlmoco || !saida) {
+  if (
+    !entrada ||
+    !inicioAlmoco ||
+    !fimAlmoco ||
+    !saida
+  ) {
     return {
       completo: false,
       segundosTrabalhados: null,
@@ -82,19 +102,30 @@ function calcularHorasTrabalhadas(registros) {
     };
   }
 
-  const entradaData = new Date(entrada.data_hora);
+  const entradaData =
+    new Date(entrada.data_hora);
 
-  const inicioAlmocoData = new Date(inicioAlmoco.data_hora);
+  const inicioAlmocoData =
+    new Date(inicioAlmoco.data_hora);
 
-  const fimAlmocoData = new Date(fimAlmoco.data_hora);
+  const fimAlmocoData =
+    new Date(fimAlmoco.data_hora);
 
-  const saidaData = new Date(saida.data_hora);
+  const saidaData =
+    new Date(saida.data_hora);
 
-  const periodoManha = inicioAlmocoData.getTime() - entradaData.getTime();
+  const periodoManha =
+    inicioAlmocoData.getTime() -
+    entradaData.getTime();
 
-  const periodoTarde = saidaData.getTime() - fimAlmocoData.getTime();
+  const periodoTarde =
+    saidaData.getTime() -
+    fimAlmocoData.getTime();
 
-  if (periodoManha < 0 || periodoTarde < 0) {
+  if (
+    periodoManha < 0 ||
+    periodoTarde < 0
+  ) {
     return {
       completo: false,
       segundosTrabalhados: null,
@@ -103,13 +134,23 @@ function calcularHorasTrabalhadas(registros) {
     };
   }
 
-  const totalMilissegundos = periodoManha + periodoTarde;
+  const totalMilissegundos =
+    periodoManha + periodoTarde;
 
-  const segundosTrabalhados = Math.floor(totalMilissegundos / 1000);
+  const segundosTrabalhados =
+    Math.floor(
+      totalMilissegundos / 1000
+    );
 
-  const minutosTrabalhados = Math.floor(segundosTrabalhados / 60);
+  const minutosTrabalhados =
+    Math.floor(
+      segundosTrabalhados / 60
+    );
 
-  const horasFormatadas = formatarSegundos(segundosTrabalhados);
+  const horasFormatadas =
+    formatarSegundos(
+      segundosTrabalhados
+    );
 
   return {
     completo: true,
@@ -120,49 +161,96 @@ function calcularHorasTrabalhadas(registros) {
 }
 
 function calcularHorasPorDia(registros) {
-  const registrosPorDia = registros.reduce((grupos, registro) => {
-    const data = obterDataRecife(registro.data_hora);
+  const registrosPorDia =
+    registros.reduce(
+      (grupos, registro) => {
+        const data =
+          obterDataRecife(
+            registro.data_hora
+          );
 
-    if (!grupos[data]) {
-      grupos[data] = [];
+        if (!grupos[data]) {
+          grupos[data] = [];
+        }
+
+        grupos[data].push(
+          registro
+        );
+
+        return grupos;
+      },
+      {}
+    );
+
+  return Object.entries(
+    registrosPorDia
+  ).map(
+    ([data, registrosDoDia]) => {
+      const calculo =
+        calcularHorasTrabalhadas(
+          registrosDoDia
+        );
+
+      return {
+        data,
+        ...calculo,
+      };
     }
-
-    grupos[data].push(registro);
-
-    return grupos;
-  }, {});
-
-  return Object.entries(registrosPorDia).map(([data, registrosDoDia]) => {
-    const calculo = calcularHorasTrabalhadas(registrosDoDia);
-
-    return {
-      data,
-      ...calculo,
-    };
-  });
-}
-function calcularResumoPeriodo(calculos) {
-  const diasCompletos = calculos.filter((calculo) => calculo.completo);
-
-  const diasIncompletos = calculos.filter((calculo) => !calculo.completo);
-
-  const segundosTrabalhados = diasCompletos.reduce(
-    (total, calculo) => total + (calculo.segundosTrabalhados || 0),
-    0,
   );
+}
 
-  const horasFormatadas = formatarSegundos(segundosTrabalhados);
+function calcularResumoMensal(
+  calculos,
+  mes,
+  ano
+) {
+  const diasTrabalhados =
+    calculos.length;
+
+  const diasCompletos =
+    calculos.filter(
+      (calculo) => calculo.completo
+    );
+
+  const diasIncompletos =
+    calculos.filter(
+      (calculo) => !calculo.completo
+    );
+
+  const segundosTrabalhados =
+    diasCompletos.reduce(
+      (total, calculo) => {
+        return (
+          total +
+          (calculo.segundosTrabalhados || 0)
+        );
+      },
+      0
+    );
 
   return {
-    diasCompletos: diasCompletos.length,
-    diasIncompletos: diasIncompletos.length,
+    mes: Number(mes),
+    ano: Number(ano),
+
+    diasTrabalhados,
+
+    diasCompletos:
+      diasCompletos.length,
+
+    diasIncompletos:
+      diasIncompletos.length,
+
     segundosTrabalhados,
-    horasFormatadas,
+
+    horasFormatadas:
+      formatarSegundos(
+        segundosTrabalhados
+      ),
   };
 }
 
 module.exports = {
   calcularHorasTrabalhadas,
   calcularHorasPorDia,
-  calcularResumoPeriodo,
+  calcularResumoMensal,
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Historico.css";
 
 import api from "../../services/api";
 
@@ -8,6 +9,7 @@ function Historico() {
 
   const [registros, setRegistros] = useState([]);
   const [calculos, setCalculos] = useState([]);
+  const [resumoMensal, setResumoMensal] = useState(null);
 
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(true);
@@ -46,6 +48,9 @@ function Historico() {
 
       setRegistros(response.data.registros || []);
       setCalculos(response.data.calculos || []);
+      setResumoMensal(
+        response.data.resumoMensal || null
+      );
     } catch (error) {
       console.error(error);
 
@@ -56,6 +61,7 @@ function Historico() {
 
       setRegistros([]);
       setCalculos([]);
+      setResumoMensal(null);
     } finally {
       setCarregando(false);
     }
@@ -99,6 +105,7 @@ function Historico() {
       setErro(
         "Informe a data inicial e a data final."
       );
+
       return;
     }
 
@@ -106,6 +113,7 @@ function Historico() {
       setErro(
         "A data inicial não pode ser maior que a data final."
       );
+
       return;
     }
 
@@ -122,6 +130,7 @@ function Historico() {
     setInicio("");
     setFim("");
     setErro("");
+    setResumoMensal(null);
 
     buscarRegistros();
   }
@@ -166,9 +175,7 @@ function Historico() {
     );
   }
 
-  function ordenarRegistros(
-    registrosDoDia
-  ) {
+  function ordenarRegistros(registrosDoDia) {
     return [...registrosDoDia].sort(
       (a, b) =>
         ordemTipos[a.tipo] -
@@ -176,9 +183,7 @@ function Historico() {
     );
   }
 
-  function buscarCalculoDoDia(
-    dataFormatada
-  ) {
+  function buscarCalculoDoDia(dataFormatada) {
     const dataIso =
       converterDataParaIso(
         dataFormatada
@@ -194,301 +199,390 @@ function Historico() {
     agruparRegistrosPorData();
 
   return (
-    <div>
-      <h1>Meu Histórico</h1>
+    <main className="historico-page">
+      <div className="historico-container">
+        <header className="historico-header">
+          <div>
+            <p className="historico-subtitle">
+              Sistema de Ponto
+            </p>
 
-      <button onClick={voltarDashboard}>
-        Voltar
-      </button>
+            <h1>Meu Histórico</h1>
 
-      <hr />
+            <p className="historico-description">
+              Consulte seus registros e horas trabalhadas.
+            </p>
+          </div>
 
-      <h2>Filtrar por data</h2>
-
-      <form onSubmit={buscarPorData}>
-        <input
-          type="date"
-          value={data}
-          onChange={(event) =>
-            setData(event.target.value)
-          }
-        />
-
-        <button type="submit">
-          Buscar
-        </button>
-      </form>
-
-      <hr />
-
-      <h2>Filtrar por mês</h2>
-
-      <form onSubmit={buscarPorMes}>
-        <div>
-          <label htmlFor="mes">
-            Mês
-          </label>
-
-          <select
-            id="mes"
-            value={mes}
-            onChange={(event) =>
-              setMes(event.target.value)
-            }
+          <button
+            className="historico-back-button"
+            onClick={voltarDashboard}
           >
-            <option value="">
-              Selecione
-            </option>
+            Voltar
+          </button>
+        </header>
 
-            <option value="1">
-              Janeiro
-            </option>
+        <section className="historico-filter-card">
+          <div className="historico-section-title">
+            <h2>Filtros</h2>
 
-            <option value="2">
-              Fevereiro
-            </option>
+            <p>
+              Escolha uma das opções abaixo para consultar
+              seus registros.
+            </p>
+          </div>
 
-            <option value="3">
-              Março
-            </option>
+          <div className="historico-filters-grid">
+            <form
+              className="historico-filter"
+              onSubmit={buscarPorData}
+            >
+              <h3>Data específica</h3>
 
-            <option value="4">
-              Abril
-            </option>
+              <div className="historico-field">
+                <label htmlFor="data">
+                  Data
+                </label>
 
-            <option value="5">
-              Maio
-            </option>
-
-            <option value="6">
-              Junho
-            </option>
-
-            <option value="7">
-              Julho
-            </option>
-
-            <option value="8">
-              Agosto
-            </option>
-
-            <option value="9">
-              Setembro
-            </option>
-
-            <option value="10">
-              Outubro
-            </option>
-
-            <option value="11">
-              Novembro
-            </option>
-
-            <option value="12">
-              Dezembro
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="ano">
-            Ano
-          </label>
-
-          <input
-            id="ano"
-            type="number"
-            value={ano}
-            onChange={(event) =>
-              setAno(event.target.value)
-            }
-            placeholder="2026"
-          />
-        </div>
-
-        <button type="submit">
-          Buscar
-        </button>
-      </form>
-
-      <hr />
-
-      <h2>Filtrar por intervalo</h2>
-
-      <form
-        onSubmit={
-          buscarPorIntervalo
-        }
-      >
-        <div>
-          <label htmlFor="inicio">
-            Data inicial
-          </label>
-
-          <input
-            id="inicio"
-            type="date"
-            value={inicio}
-            onChange={(event) =>
-              setInicio(
-                event.target.value
-              )
-            }
-          />
-        </div>
-
-        <div>
-          <label htmlFor="fim">
-            Data final
-          </label>
-
-          <input
-            id="fim"
-            type="date"
-            value={fim}
-            onChange={(event) =>
-              setFim(
-                event.target.value
-              )
-            }
-          />
-        </div>
-
-        <button type="submit">
-          Buscar
-        </button>
-      </form>
-
-      <hr />
-
-      <button
-        onClick={limparFiltros}
-      >
-        Limpar filtros
-      </button>
-
-      <hr />
-
-      {carregando && (
-        <p>
-          Carregando registros...
-        </p>
-      )}
-
-      {erro && (
-        <p>{erro}</p>
-      )}
-
-      {!carregando &&
-        !erro &&
-        registros.length === 0 && (
-          <p>
-            Nenhum registro
-            encontrado.
-          </p>
-        )}
-
-      {!carregando &&
-        !erro &&
-        registros.length > 0 &&
-        Object.entries(
-          registrosAgrupados
-        ).map(
-          ([
-            dataRegistro,
-            registrosDoDia,
-          ]) => {
-            const registrosOrdenados =
-              ordenarRegistros(
-                registrosDoDia
-              );
-
-            const calculoDia =
-              buscarCalculoDoDia(
-                dataRegistro
-              );
-
-            return (
-              <div key={dataRegistro}>
-                <h2>
-                  {dataRegistro}
-                </h2>
-
-                <table>
-                  <thead>
-                    <tr>
-                      <th>
-                        Tipo
-                      </th>
-
-                      <th>
-                        Hora
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {registrosOrdenados.map(
-                      (
-                        registro,
-                        index
-                      ) => {
-                        const {
-                          hora,
-                        } =
-                          separarDataHora(
-                            registro.data_hora
-                          );
-
-                        return (
-                          <tr
-                            key={
-                              index
-                            }
-                          >
-                            <td>
-                              {nomesTipos[
-                                registro
-                                  .tipo
-                              ] ||
-                                registro.tipo}
-                            </td>
-
-                            <td>
-                              {
-                                hora
-                              }
-                            </td>
-                          </tr>
-                        );
-                      }
-                    )}
-                  </tbody>
-                </table>
-
-                {calculoDia?.completo ? (
-                  <p>
-                    <strong>
-                      Total
-                      trabalhado:
-                    </strong>{" "}
-                    {
-                      calculoDia.horasFormatadas
-                    }
-                  </p>
-                ) : (
-                  <p>
-                    Jornada ainda
-                    não concluída.
-                  </p>
-                )}
-
-                <hr />
+                <input
+                  id="data"
+                  type="date"
+                  value={data}
+                  onChange={(event) =>
+                    setData(event.target.value)
+                  }
+                />
               </div>
-            );
-          }
+
+              <button type="submit">
+                Buscar
+              </button>
+            </form>
+
+            <form
+              className="historico-filter"
+              onSubmit={buscarPorMes}
+            >
+              <h3>Mês</h3>
+
+              <div className="historico-field">
+                <label htmlFor="mes">
+                  Mês
+                </label>
+
+                <select
+                  id="mes"
+                  value={mes}
+                  onChange={(event) =>
+                    setMes(event.target.value)
+                  }
+                >
+                  <option value="">
+                    Selecione
+                  </option>
+
+                  <option value="1">Janeiro</option>
+                  <option value="2">Fevereiro</option>
+                  <option value="3">Março</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Maio</option>
+                  <option value="6">Junho</option>
+                  <option value="7">Julho</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Setembro</option>
+                  <option value="10">Outubro</option>
+                  <option value="11">Novembro</option>
+                  <option value="12">Dezembro</option>
+                </select>
+              </div>
+
+              <div className="historico-field">
+                <label htmlFor="ano">
+                  Ano
+                </label>
+
+                <input
+                  id="ano"
+                  type="number"
+                  value={ano}
+                  onChange={(event) =>
+                    setAno(event.target.value)
+                  }
+                  placeholder="2026"
+                />
+              </div>
+
+              <button type="submit">
+                Buscar
+              </button>
+            </form>
+
+            <form
+              className="historico-filter"
+              onSubmit={buscarPorIntervalo}
+            >
+              <h3>Intervalo</h3>
+
+              <div className="historico-field">
+                <label htmlFor="inicio">
+                  Data inicial
+                </label>
+
+                <input
+                  id="inicio"
+                  type="date"
+                  value={inicio}
+                  onChange={(event) =>
+                    setInicio(event.target.value)
+                  }
+                />
+              </div>
+
+              <div className="historico-field">
+                <label htmlFor="fim">
+                  Data final
+                </label>
+
+                <input
+                  id="fim"
+                  type="date"
+                  value={fim}
+                  onChange={(event) =>
+                    setFim(event.target.value)
+                  }
+                />
+              </div>
+
+              <button type="submit">
+                Buscar
+              </button>
+            </form>
+          </div>
+
+          <div className="historico-filter-actions">
+            <button
+              className="historico-clear-button"
+              onClick={limparFiltros}
+            >
+              Limpar filtros
+            </button>
+          </div>
+        </section>
+
+        {carregando && (
+          <div className="historico-status">
+            Carregando registros...
+          </div>
         )}
-    </div>
+
+        {erro && (
+          <div className="historico-error">
+            {erro}
+          </div>
+        )}
+
+        {!carregando &&
+          !erro &&
+          resumoMensal && (
+            <section className="historico-summary">
+              <div className="historico-section-title">
+                <h2>Resumo mensal</h2>
+
+                <p>
+                  {resumoMensal.mes}/
+                  {resumoMensal.ano}
+                </p>
+              </div>
+
+              <div className="historico-summary-grid">
+                <div className="summary-card">
+                  <span>
+                    Dias trabalhados
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal.diasTrabalhados
+                    }
+                  </strong>
+                </div>
+
+                <div className="summary-card">
+                  <span>
+                    Dias completos
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal.diasCompletos
+                    }
+                  </strong>
+                </div>
+
+                <div className="summary-card">
+                  <span>
+                    Dias incompletos
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal.diasIncompletos
+                    }
+                  </strong>
+                </div>
+
+                <div className="summary-card summary-card-highlight">
+                  <span>
+                    Total trabalhado
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal.horasFormatadas
+                    }
+                  </strong>
+                </div>
+              </div>
+            </section>
+          )}
+
+        {!carregando &&
+          !erro &&
+          registros.length === 0 && (
+            <div className="historico-empty">
+              Nenhum registro encontrado.
+            </div>
+          )}
+
+        {!carregando &&
+          !erro &&
+          registros.length > 0 && (
+            <section className="historico-records">
+              <div className="historico-section-title">
+                <h2>Registros</h2>
+
+                <p>
+                  Histórico detalhado da sua jornada.
+                </p>
+              </div>
+
+              <div className="historico-days">
+                {Object.entries(
+                  registrosAgrupados
+                ).map(
+                  ([
+                    dataRegistro,
+                    registrosDoDia,
+                  ]) => {
+                    const registrosOrdenados =
+                      ordenarRegistros(
+                        registrosDoDia
+                      );
+
+                    const calculoDia =
+                      buscarCalculoDoDia(
+                        dataRegistro
+                      );
+
+                    return (
+                      <article
+                        className="historico-day-card"
+                        key={dataRegistro}
+                      >
+                        <div className="historico-day-header">
+                          <h3>
+                            {dataRegistro}
+                          </h3>
+
+                          {calculoDia?.completo ? (
+                            <span className="historico-day-status historico-day-complete">
+                              Jornada completa
+                            </span>
+                          ) : (
+                            <span className="historico-day-status historico-day-incomplete">
+                              Jornada incompleta
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="historico-table-wrapper">
+                          <table className="historico-table">
+                            <thead>
+                              <tr>
+                                <th>Tipo</th>
+                                <th>Hora</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {registrosOrdenados.map(
+                                (
+                                  registro,
+                                  index
+                                ) => {
+                                  const {
+                                    hora,
+                                  } =
+                                    separarDataHora(
+                                      registro.data_hora
+                                    );
+
+                                  return (
+                                    <tr
+                                      key={
+                                        index
+                                      }
+                                    >
+                                      <td>
+                                        <span
+                                          className={`historico-type historico-type-${registro.tipo}`}
+                                        >
+                                          {nomesTipos[
+                                            registro.tipo
+                                          ] ||
+                                            registro.tipo}
+                                        </span>
+                                      </td>
+
+                                      <td className="historico-time">
+                                        {hora}
+                                      </td>
+                                    </tr>
+                                  );
+                                }
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="historico-day-total">
+                          {calculoDia?.completo ? (
+                            <>
+                              <span>
+                                Total trabalhado
+                              </span>
+
+                              <strong>
+                                {
+                                  calculoDia.horasFormatadas
+                                }
+                              </strong>
+                            </>
+                          ) : (
+                            <span>
+                              Jornada ainda não concluída.
+                            </span>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  }
+                )}
+              </div>
+            </section>
+          )}
+      </div>
+    </main>
   );
 }
 

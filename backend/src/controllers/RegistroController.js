@@ -49,33 +49,62 @@ class RegistroController {
   }
 
   async meusRegistros(req, res, next) {
-    try {
-      const { data, mes, ano, inicio, fim } = req.query;
+  try {
+    const {
+      data,
+      mes,
+      ano,
+      inicio,
+      fim,
+    } = req.query;
 
-      const registros = await RegistroService.meusRegistros(req.user.id, {
-        data,
-        mes,
-        ano,
-        inicio,
-        fim,
-      });
+    const registros =
+      await RegistroService.meusRegistros(
+        req.user.id,
+        {
+          data,
+          mes,
+          ano,
+          inicio,
+          fim,
+        }
+      );
 
-      const registrosFormatados = registros.map((registro) => ({
+    const registrosFormatados =
+      registros.map((registro) => ({
         tipo: registro.tipo,
-        data_hora: formatarDataRecife(registro.data_hora),
+        data_hora: formatarDataRecife(
+          registro.data_hora
+        ),
       }));
 
-      const calculos = CalculoHorasService.calcularHorasPorDia(registros);
-      const resumo = CalculoHorasService.calcularResumoPeriodo(calculos);
-      return res.status(200).json({
-        registros: registrosFormatados,
-        calculos,
-        resumo,
-      });
-    } catch (error) {
-      next(error);
+    const calculos =
+      CalculoHorasService
+        .calcularHorasPorDia(
+          registros
+        );
+
+    let resumoMensal = null;
+
+    if (mes && ano) {
+      resumoMensal =
+        CalculoHorasService
+          .calcularResumoMensal(
+            calculos,
+            mes,
+            ano
+          );
     }
+
+    return res.status(200).json({
+      registros: registrosFormatados,
+      calculos,
+      resumoMensal,
+    });
+  } catch (error) {
+    next(error);
   }
+}
 }
 
 module.exports = new RegistroController();

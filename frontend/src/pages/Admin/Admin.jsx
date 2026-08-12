@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Admin.css";
 
 import api from "../../services/api";
 
@@ -40,70 +41,138 @@ function Admin() {
   }
 
   return (
-    <div>
-      <h1>Área Administrativa</h1>
+    <main className="admin-page">
+      <div className="admin-container">
+        <header className="admin-header">
+          <div>
+            <p className="admin-subtitle">
+              Sistema de Ponto
+            </p>
 
-      <button onClick={voltarDashboard}>
-        Voltar
-      </button>
+            <h1>Área Administrativa</h1>
 
-      <hr />
+            <p className="admin-description">
+              Consulte os usuários cadastrados e seus registros de ponto.
+            </p>
+          </div>
 
-      <h2>Usuários</h2>
+          <button
+            className="admin-back-button"
+            onClick={voltarDashboard}
+          >
+            Voltar
+          </button>
+        </header>
 
-      {carregando && (
-        <p>Carregando usuários...</p>
-      )}
+        <section className="admin-card">
+          <div className="admin-card-header">
+            <div>
+              <h2>Usuários</h2>
 
-      {erro && (
-        <p>{erro}</p>
-      )}
+              <p>
+                Usuários cadastrados no sistema.
+              </p>
+            </div>
 
-      {!carregando &&
-        !erro &&
-        usuarios.length === 0 && (
-          <p>Nenhum usuário encontrado.</p>
-        )}
+            {!carregando && !erro && (
+              <span className="admin-user-count">
+                {usuarios.length}{" "}
+                {usuarios.length === 1
+                  ? "usuário"
+                  : "usuários"}
+              </span>
+            )}
+          </div>
 
-      {!carregando &&
-        !erro &&
-        usuarios.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Cargo</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
+          {carregando && (
+            <div className="admin-status">
+              Carregando usuários...
+            </div>
+          )}
 
-            <tbody>
-              {usuarios.map((usuario) => (
-                <tr key={usuario.id}>
-                  <td>{usuario.nome}</td>
+          {erro && (
+            <div className="admin-error">
+              {erro}
+            </div>
+          )}
 
-                  <td>{usuario.email}</td>
+          {!carregando &&
+            !erro &&
+            usuarios.length === 0 && (
+              <div className="admin-empty">
+                Nenhum usuário encontrado.
+              </div>
+            )}
 
-                  <td>{usuario.cargo}</td>
+          {!carregando &&
+            !erro &&
+            usuarios.length > 0 && (
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Cargo</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
 
-                  <td>
-                    <button
-                      onClick={() =>
-                        abrirHistoricoUsuario(
-                          usuario.id
-                        )
-                      }
-                    >
-                      Ver registros
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-    </div>
+                  <tbody>
+                    {usuarios.map((usuario) => (
+                      <tr key={usuario.id}>
+                        <td>
+                          <div className="admin-user">
+                            <div className="admin-user-avatar">
+                              {usuario.nome
+                                ?.charAt(0)
+                                .toUpperCase()}
+                            </div>
+
+                            <span>
+                              {usuario.nome}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="admin-email">
+                          {usuario.email}
+                        </td>
+
+                        <td>
+                          <span
+                            className={`admin-role ${
+                              usuario.cargo ===
+                              "Administrador"
+                                ? "admin-role-admin"
+                                : "admin-role-user"
+                            }`}
+                          >
+                            {usuario.cargo}
+                          </span>
+                        </td>
+
+                        <td>
+                          <button
+                            className="admin-records-button"
+                            onClick={() =>
+                              abrirHistoricoUsuario(
+                                usuario.id
+                              )
+                            }
+                          >
+                            Ver registros
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+        </section>
+      </div>
+    </main>
   );
 }
 

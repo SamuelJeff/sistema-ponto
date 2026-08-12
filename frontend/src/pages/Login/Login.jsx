@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 import { AuthContext } from "../../contexts/AuthContext";
 import api from "../../services/api";
@@ -43,8 +44,6 @@ function Login() {
     } catch (error) {
       console.error(error);
 
-      // Se alguma coisa falhar, evitamos deixar
-      // um token inválido salvo.
       localStorage.removeItem("token");
 
       setErro(
@@ -57,62 +56,83 @@ function Login() {
   }
 
   return (
-    <div>
-      <h1>Sistema de Ponto</h1>
+    <main className="login-page">
+      <div className="login-container">
+        <section className="login-card">
+          <div className="login-header">
+            <div className="login-logo">
+              SP
+            </div>
 
-      <h2>Login</h2>
+            <h1>Sistema de Ponto</h1>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">
-            E-mail
-          </label>
+            <p>
+              Entre com seus dados para acessar o sistema.
+            </p>
+          </div>
 
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(event) =>
-              setEmail(event.target.value)
-            }
-            placeholder="Digite seu e-mail"
-            required
-          />
-        </div>
+          <form
+            className="login-form"
+            onSubmit={handleSubmit}
+          >
+            <div className="login-field">
+              <label htmlFor="email">
+                E-mail
+              </label>
 
-        <div>
-          <label htmlFor="senha">
-            Senha
-          </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                placeholder="Digite seu e-mail"
+                autoComplete="email"
+                required
+              />
+            </div>
 
-          <input
-            id="senha"
-            type="password"
-            value={senha}
-            onChange={(event) =>
-              setSenha(event.target.value)
-            }
-            placeholder="Digite sua senha"
-            required
-          />
-        </div>
+            <div className="login-field">
+              <label htmlFor="senha">
+                Senha
+              </label>
 
-        {erro && (
-          <p>
-            {erro}
-          </p>
-        )}
+              <input
+                id="senha"
+                type="password"
+                value={senha}
+                onChange={(event) =>
+                  setSenha(event.target.value)
+                }
+                placeholder="Digite sua senha"
+                autoComplete="current-password"
+                required
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={carregando}
-        >
-          {carregando
-            ? "Entrando..."
-            : "Entrar"}
-        </button>
-      </form>
-    </div>
+            {erro && (
+              <div
+                className="login-error"
+                role="alert"
+              >
+                {erro}
+              </div>
+            )}
+
+            <button
+              className="login-button"
+              type="submit"
+              disabled={carregando}
+            >
+              {carregando
+                ? "Entrando..."
+                : "Entrar"}
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }
 
