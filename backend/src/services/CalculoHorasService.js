@@ -26,13 +26,47 @@ function formatarSegundos(totalSegundos) {
   );
 }
 
-function calcularHorasTrabalhadas(registros) {
+function formatarSaldoSegundos(totalSegundos) {
+  const sinal =
+    totalSegundos > 0
+      ? "+"
+      : totalSegundos < 0
+        ? "-"
+        : "";
+
+  const segundosAbsolutos =
+    Math.abs(totalSegundos);
+
+  return (
+    sinal +
+    formatarSegundos(
+      segundosAbsolutos
+    )
+  );
+}
+
+function calcularHorasTrabalhadas(
+  registros,
+  jornadaDiariaMinutos = 480
+) {
   if (!registros || registros.length === 0) {
     return {
       completo: false,
+
       segundosTrabalhados: null,
       minutosTrabalhados: null,
       horasFormatadas: null,
+
+      jornadaDiariaMinutos,
+      jornadaEsperadaFormatada:
+        formatarSegundos(
+          jornadaDiariaMinutos * 60
+        ),
+
+      saldoSegundos: null,
+      saldoFormatado: null,
+      segundosExtras: null,
+      horasExtrasFormatadas: null,
     };
   }
 
@@ -96,9 +130,21 @@ function calcularHorasTrabalhadas(registros) {
   ) {
     return {
       completo: false,
+
       segundosTrabalhados: null,
       minutosTrabalhados: null,
       horasFormatadas: null,
+
+      jornadaDiariaMinutos,
+      jornadaEsperadaFormatada:
+        formatarSegundos(
+          jornadaDiariaMinutos * 60
+        ),
+
+      saldoSegundos: null,
+      saldoFormatado: null,
+      segundosExtras: null,
+      horasExtrasFormatadas: null,
     };
   }
 
@@ -128,9 +174,21 @@ function calcularHorasTrabalhadas(registros) {
   ) {
     return {
       completo: false,
+
       segundosTrabalhados: null,
       minutosTrabalhados: null,
       horasFormatadas: null,
+
+      jornadaDiariaMinutos,
+      jornadaEsperadaFormatada:
+        formatarSegundos(
+          jornadaDiariaMinutos * 60
+        ),
+
+      saldoSegundos: null,
+      saldoFormatado: null,
+      segundosExtras: null,
+      horasExtrasFormatadas: null,
     };
   }
 
@@ -152,15 +210,53 @@ function calcularHorasTrabalhadas(registros) {
       segundosTrabalhados
     );
 
+  const jornadaEsperadaSegundos =
+    jornadaDiariaMinutos * 60;
+
+  const saldoSegundos =
+    segundosTrabalhados -
+    jornadaEsperadaSegundos;
+
+  const segundosExtras =
+    Math.max(
+      saldoSegundos,
+      0
+    );
+
   return {
     completo: true,
+
     segundosTrabalhados,
     minutosTrabalhados,
     horasFormatadas,
+
+    jornadaDiariaMinutos,
+
+    jornadaEsperadaFormatada:
+      formatarSegundos(
+        jornadaEsperadaSegundos
+      ),
+
+    saldoSegundos,
+
+    saldoFormatado:
+      formatarSaldoSegundos(
+        saldoSegundos
+      ),
+
+    segundosExtras,
+
+    horasExtrasFormatadas:
+      formatarSegundos(
+        segundosExtras
+      ),
   };
 }
 
-function calcularHorasPorDia(registros) {
+function calcularHorasPorDia(
+  registros,
+  jornadaDiariaMinutos = 480
+) {
   const registrosPorDia =
     registros.reduce(
       (grupos, registro) => {
@@ -188,7 +284,8 @@ function calcularHorasPorDia(registros) {
     ([data, registrosDoDia]) => {
       const calculo =
         calcularHorasTrabalhadas(
-          registrosDoDia
+          registrosDoDia,
+          jornadaDiariaMinutos
         );
 
       return {
@@ -228,6 +325,28 @@ function calcularResumoMensal(
       0
     );
 
+  const saldoSegundos =
+    diasCompletos.reduce(
+      (total, calculo) => {
+        return (
+          total +
+          (calculo.saldoSegundos || 0)
+        );
+      },
+      0
+    );
+
+  const segundosExtras =
+    diasCompletos.reduce(
+      (total, calculo) => {
+        return (
+          total +
+          (calculo.segundosExtras || 0)
+        );
+      },
+      0
+    );
+
   return {
     mes: Number(mes),
     ano: Number(ano),
@@ -245,6 +364,20 @@ function calcularResumoMensal(
     horasFormatadas:
       formatarSegundos(
         segundosTrabalhados
+      ),
+
+    saldoSegundos,
+
+    saldoFormatado:
+      formatarSaldoSegundos(
+        saldoSegundos
+      ),
+
+    segundosExtras,
+
+    horasExtrasFormatadas:
+      formatarSegundos(
+        segundosExtras
       ),
   };
 }

@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import "./RegistrosUsuario.css";
 
@@ -12,14 +9,14 @@ function RegistrosUsuario() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const [usuario, setUsuario] = useState(null);
+
   const [registros, setRegistros] = useState([]);
   const [calculos, setCalculos] = useState([]);
-  const [resumoMensal, setResumoMensal] =
-    useState(null);
+  const [resumoMensal, setResumoMensal] = useState(null);
 
   const [erro, setErro] = useState("");
-  const [carregando, setCarregando] =
-    useState(true);
+  const [carregando, setCarregando] = useState(true);
 
   const [data, setData] = useState("");
   const [mes, setMes] = useState("");
@@ -27,51 +24,30 @@ function RegistrosUsuario() {
   const [inicio, setInicio] = useState("");
   const [fim, setFim] = useState("");
 
-  const nomesTipos = {
-    entrada: "Entrada",
-    inicio_almoco: "Início do almoço",
-    fim_almoco: "Fim do almoço",
-    saida: "Saída",
-  };
-
-  const ordemTipos = {
-    entrada: 1,
-    inicio_almoco: 2,
-    fim_almoco: 3,
-    saida: 4,
-  };
-
   async function buscarRegistros(filtros = {}) {
     setErro("");
     setCarregando(true);
 
     try {
-      const response = await api.get(
-        `/admin/users/${id}/registros`,
-        {
-          params: filtros,
-        }
-      );
+      const response = await api.get(`/admin/users/${id}/registros`, {
+        params: filtros,
+      });
 
-      setRegistros(
-        response.data.registros || []
-      );
+      setUsuario(response.data.usuario || null);
 
-      setCalculos(
-        response.data.calculos || []
-      );
+      setRegistros(response.data.registros || []);
 
-      setResumoMensal(
-        response.data.resumoMensal || null
-      );
+      setCalculos(response.data.calculos || []);
+
+      setResumoMensal(response.data.resumoMensal || null);
     } catch (error) {
       console.error(error);
 
       setErro(
-        error.response?.data?.message ||
-          "Erro ao buscar registros do usuário."
+        error.response?.data?.message || "Erro ao buscar registros do usuário.",
       );
 
+      setUsuario(null);
       setRegistros([]);
       setCalculos([]);
       setResumoMensal(null);
@@ -101,9 +77,7 @@ function RegistrosUsuario() {
     event.preventDefault();
 
     if (!mes || !ano) {
-      setErro(
-        "Informe o mês e o ano."
-      );
+      setErro("Informe o mês e o ano.");
 
       return;
     }
@@ -118,17 +92,13 @@ function RegistrosUsuario() {
     event.preventDefault();
 
     if (!inicio || !fim) {
-      setErro(
-        "Informe a data inicial e a data final."
-      );
+      setErro("Informe a data inicial e a data final.");
 
       return;
     }
 
     if (inicio > fim) {
-      setErro(
-        "A data inicial não pode ser maior que a data final."
-      );
+      setErro("A data inicial não pode ser maior que a data final.");
 
       return;
     }
@@ -156,289 +126,269 @@ function RegistrosUsuario() {
   }
 
   function separarDataHora(dataHora) {
-    const partes =
-      dataHora.split(",");
+    const partes = dataHora.split(",");
 
     return {
-      data:
-        partes[0]?.trim(),
+      data: partes[0]?.trim(),
 
-      hora:
-        partes[1]?.trim(),
+      hora: partes[1]?.trim(),
     };
   }
 
-  function converterDataParaIso(
-    dataFormatada
-  ) {
-    const [dia, mes, ano] =
-      dataFormatada.split("/");
+  function converterDataParaIso(dataFormatada) {
+    const [dia, mes, ano] = dataFormatada.split("/");
 
     return `${ano}-${mes}-${dia}`;
   }
 
   function agruparRegistrosPorData() {
-    return registros.reduce(
-      (grupos, registro) => {
-        const { data } =
-          separarDataHora(
-            registro.data_hora
-          );
+    return registros.reduce((grupos, registro) => {
+      const { data } = separarDataHora(registro.data_hora);
 
-        if (!grupos[data]) {
-          grupos[data] = [];
-        }
+      if (!grupos[data]) {
+        grupos[data] = [];
+      }
 
-        grupos[data].push(registro);
+      grupos[data].push(registro);
 
-        return grupos;
-      },
-      {}
-    );
+      return grupos;
+    }, {});
   }
 
-  function ordenarRegistros(
-    registrosDoDia
-  ) {
-    return [...registrosDoDia].sort(
-      (a, b) =>
-        ordemTipos[a.tipo] -
-        ordemTipos[b.tipo]
-    );
+  function buscarCalculoDoDia(dataFormatada) {
+    const dataIso = converterDataParaIso(dataFormatada);
+
+    return calculos.find((calculo) => calculo.data === dataIso);
   }
 
-  function buscarCalculoDoDia(
-    dataFormatada
-  ) {
-    const dataIso =
-      converterDataParaIso(
-        dataFormatada
-      );
+  function buscarHoraDoRegistro(registrosDoDia, tipo) {
+    const registro = registrosDoDia.find((item) => item.tipo === tipo);
 
-    return calculos.find(
-      (calculo) =>
-        calculo.data === dataIso
-    );
+    if (!registro) {
+      return "-";
+    }
+
+    const { hora } = separarDataHora(registro.data_hora);
+
+    return hora || "-";
   }
 
-  const registrosAgrupados =
-    agruparRegistrosPorData();
+  function formatarJornadaMinutos(minutosTotais) {
+    if (minutosTotais === null || minutosTotais === undefined) {
+      return "-";
+    }
+
+    const horas = Math.floor(minutosTotais / 60);
+
+    const minutos = minutosTotais % 60;
+
+    if (minutos === 0) {
+      return `${horas}h`;
+    }
+
+    return `${horas}h ${minutos}min`;
+  }
+
+  function montarLinhasHistorico() {
+    const registrosAgrupados = agruparRegistrosPorData();
+
+    return Object.entries(registrosAgrupados)
+      .map(([dataRegistro, registrosDoDia]) => {
+        const calculoDia = buscarCalculoDoDia(dataRegistro);
+
+        return {
+          data: dataRegistro,
+
+          entrada: buscarHoraDoRegistro(registrosDoDia, "entrada"),
+
+          inicioAlmoco: buscarHoraDoRegistro(registrosDoDia, "inicio_almoco"),
+
+          fimAlmoco: buscarHoraDoRegistro(registrosDoDia, "fim_almoco"),
+
+          saida: buscarHoraDoRegistro(registrosDoDia, "saida"),
+
+          trabalhado: calculoDia?.horasFormatadas || "-",
+
+          jornada: calculoDia?.jornadaEsperadaFormatada || "-",
+
+          saldo: calculoDia?.saldoFormatado || "-",
+
+          saldoSegundos: calculoDia?.saldoSegundos ?? null,
+
+          extras: calculoDia?.horasExtrasFormatadas || "-",
+        };
+      })
+      .sort((a, b) => {
+        const dataA = converterDataParaIso(a.data);
+
+        const dataB = converterDataParaIso(b.data);
+
+        return dataB.localeCompare(dataA);
+      });
+  }
+
+  const linhasHistorico = montarLinhasHistorico();
 
   return (
     <main className="registros-usuario-page">
       <div className="registros-usuario-container">
         <header className="registros-usuario-header">
           <div>
-            <p className="registros-usuario-subtitle">
-              Área Administrativa
-            </p>
+            <p className="registros-usuario-subtitle">Área Administrativa</p>
 
             <h1>
-              Registros do Usuário
+              {usuario
+                ? `Registros de ${usuario.nome}`
+                : "Registros do Usuário"}
             </h1>
 
             <p className="registros-usuario-description">
-              Consulte registros, jornadas e horas
-              trabalhadas do funcionário.
+              Consulte registros, jornadas, saldo e horas extras do funcionário.
             </p>
           </div>
 
-          <button
-            className="registros-usuario-back"
-            onClick={voltarAdmin}
-          >
+          <button className="registros-usuario-back" onClick={voltarAdmin}>
             Voltar
           </button>
         </header>
+
+        {usuario && (
+          <section className="registros-usuario-info">
+            <div>
+              <span>E-mail</span>
+
+              <strong>{usuario.email}</strong>
+            </div>
+
+            <div>
+              <span>Cargo</span>
+
+              <strong>{usuario.cargo}</strong>
+            </div>
+
+            <div>
+              <span>Jornada diária</span>
+
+              <strong>
+                {formatarJornadaMinutos(usuario.jornada_diaria_minutos)}
+              </strong>
+            </div>
+          </section>
+        )}
 
         <section className="registros-usuario-filter-card">
           <div className="registros-usuario-section-title">
             <h2>Filtros</h2>
 
-            <p>
-              Selecione uma forma de consulta.
-            </p>
+            <p>Selecione uma forma de consulta.</p>
           </div>
 
           <div className="registros-usuario-filters-grid">
-            <form
-              className="registros-usuario-filter"
-              onSubmit={buscarPorData}
-            >
+            <form className="registros-usuario-filter" onSubmit={buscarPorData}>
               <h3>Data específica</h3>
 
               <div className="registros-usuario-field">
-                <label htmlFor="data">
-                  Data
-                </label>
+                <label htmlFor="data">Data</label>
 
                 <input
                   id="data"
                   type="date"
                   value={data}
-                  onChange={(event) =>
-                    setData(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setData(event.target.value)}
                 />
               </div>
 
-              <button type="submit">
-                Buscar
-              </button>
+              <button type="submit">Buscar</button>
             </form>
 
-            <form
-              className="registros-usuario-filter"
-              onSubmit={buscarPorMes}
-            >
+            <form className="registros-usuario-filter" onSubmit={buscarPorMes}>
               <h3>Mês</h3>
 
               <div className="registros-usuario-field">
-                <label htmlFor="mes">
-                  Mês
-                </label>
+                <label htmlFor="mes">Mês</label>
 
                 <select
                   id="mes"
                   value={mes}
-                  onChange={(event) =>
-                    setMes(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setMes(event.target.value)}
                 >
-                  <option value="">
-                    Selecione
-                  </option>
+                  <option value="">Selecione</option>
 
-                  <option value="1">
-                    Janeiro
-                  </option>
+                  <option value="1">Janeiro</option>
 
-                  <option value="2">
-                    Fevereiro
-                  </option>
+                  <option value="2">Fevereiro</option>
 
-                  <option value="3">
-                    Março
-                  </option>
+                  <option value="3">Março</option>
 
-                  <option value="4">
-                    Abril
-                  </option>
+                  <option value="4">Abril</option>
 
-                  <option value="5">
-                    Maio
-                  </option>
+                  <option value="5">Maio</option>
 
-                  <option value="6">
-                    Junho
-                  </option>
+                  <option value="6">Junho</option>
 
-                  <option value="7">
-                    Julho
-                  </option>
+                  <option value="7">Julho</option>
 
-                  <option value="8">
-                    Agosto
-                  </option>
+                  <option value="8">Agosto</option>
 
-                  <option value="9">
-                    Setembro
-                  </option>
+                  <option value="9">Setembro</option>
 
-                  <option value="10">
-                    Outubro
-                  </option>
+                  <option value="10">Outubro</option>
 
-                  <option value="11">
-                    Novembro
-                  </option>
+                  <option value="11">Novembro</option>
 
-                  <option value="12">
-                    Dezembro
-                  </option>
+                  <option value="12">Dezembro</option>
                 </select>
               </div>
 
               <div className="registros-usuario-field">
-                <label htmlFor="ano">
-                  Ano
-                </label>
+                <label htmlFor="ano">Ano</label>
 
                 <input
                   id="ano"
                   type="number"
                   value={ano}
-                  onChange={(event) =>
-                    setAno(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setAno(event.target.value)}
                   placeholder="2026"
                 />
               </div>
 
-              <button type="submit">
-                Buscar
-              </button>
+              <button type="submit">Buscar</button>
             </form>
 
             <form
               className="registros-usuario-filter"
-              onSubmit={
-                buscarPorIntervalo
-              }
+              onSubmit={buscarPorIntervalo}
             >
               <h3>Intervalo</h3>
 
               <div className="registros-usuario-field">
-                <label htmlFor="inicio">
-                  Data inicial
-                </label>
+                <label htmlFor="inicio">Data inicial</label>
 
                 <input
                   id="inicio"
                   type="date"
                   value={inicio}
-                  onChange={(event) =>
-                    setInicio(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setInicio(event.target.value)}
                 />
               </div>
 
               <div className="registros-usuario-field">
-                <label htmlFor="fim">
-                  Data final
-                </label>
+                <label htmlFor="fim">Data final</label>
 
                 <input
                   id="fim"
                   type="date"
                   value={fim}
-                  onChange={(event) =>
-                    setFim(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setFim(event.target.value)}
                 />
               </div>
 
-              <button type="submit">
-                Buscar
-              </button>
+              <button type="submit">Buscar</button>
             </form>
           </div>
 
           <div className="registros-usuario-filter-actions">
-            <button
-              className="registros-usuario-clear"
-              onClick={limparFiltros}
-            >
+            <button className="registros-usuario-clear" onClick={limparFiltros}>
               Limpar filtros
             </button>
           </div>
@@ -450,221 +400,151 @@ function RegistrosUsuario() {
           </div>
         )}
 
-        {erro && (
-          <div className="registros-usuario-error">
-            {erro}
+        {erro && <div className="registros-usuario-error">{erro}</div>}
+
+        {!carregando && !erro && resumoMensal && (
+          <section className="registros-usuario-summary">
+            <div className="registros-usuario-section-title">
+              <h2>Resumo mensal</h2>
+
+              <p>
+                {resumoMensal.mes}/{resumoMensal.ano}
+              </p>
+            </div>
+
+            <div className="registros-usuario-summary-grid">
+              <div className="registros-summary-card">
+                <span>Dias trabalhados</span>
+
+                <strong>{resumoMensal.diasTrabalhados}</strong>
+              </div>
+
+              <div className="registros-summary-card">
+                <span>Dias completos</span>
+
+                <strong>{resumoMensal.diasCompletos}</strong>
+              </div>
+
+              <div className="registros-summary-card">
+                <span>Dias incompletos</span>
+
+                <strong>{resumoMensal.diasIncompletos}</strong>
+              </div>
+
+              <div className="registros-summary-card">
+                <span>Total trabalhado</span>
+
+                <strong>{resumoMensal.horasFormatadas}</strong>
+              </div>
+
+              <div
+                className={`registros-summary-card ${
+                  resumoMensal.saldoSegundos > 0
+                    ? "registros-summary-positive"
+                    : resumoMensal.saldoSegundos < 0
+                      ? "registros-summary-negative"
+                      : ""
+                }`}
+              >
+                <span>Saldo do mês</span>
+
+                <strong>{resumoMensal.saldoFormatado}</strong>
+              </div>
+
+              <div className="registros-summary-card registros-summary-highlight">
+                <span>Horas extras</span>
+
+                <strong>{resumoMensal.horasExtrasFormatadas}</strong>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!carregando && !erro && linhasHistorico.length === 0 && (
+          <div className="registros-usuario-empty">
+            Nenhum registro encontrado.
           </div>
         )}
 
-        {!carregando &&
-          !erro &&
-          resumoMensal && (
-            <section className="registros-usuario-summary">
-              <div className="registros-usuario-section-title">
-                <h2>
-                  Resumo mensal
-                </h2>
+        {!carregando && !erro && linhasHistorico.length > 0 && (
+          <section className="registros-usuario-records">
+            <div className="registros-usuario-section-title">
+              <h2>Registros</h2>
 
-                <p>
-                  {resumoMensal.mes}/
-                  {resumoMensal.ano}
-                </p>
-              </div>
-
-              <div className="registros-usuario-summary-grid">
-                <div className="registros-summary-card">
-                  <span>
-                    Dias trabalhados
-                  </span>
-
-                  <strong>
-                    {
-                      resumoMensal.diasTrabalhados
-                    }
-                  </strong>
-                </div>
-
-                <div className="registros-summary-card">
-                  <span>
-                    Dias completos
-                  </span>
-
-                  <strong>
-                    {
-                      resumoMensal.diasCompletos
-                    }
-                  </strong>
-                </div>
-
-                <div className="registros-summary-card">
-                  <span>
-                    Dias incompletos
-                  </span>
-
-                  <strong>
-                    {
-                      resumoMensal.diasIncompletos
-                    }
-                  </strong>
-                </div>
-
-                <div className="registros-summary-card registros-summary-highlight">
-                  <span>
-                    Total trabalhado
-                  </span>
-
-                  <strong>
-                    {
-                      resumoMensal.horasFormatadas
-                    }
-                  </strong>
-                </div>
-              </div>
-            </section>
-          )}
-
-        {!carregando &&
-          !erro &&
-          registros.length === 0 && (
-            <div className="registros-usuario-empty">
-              Nenhum registro encontrado.
+              <p>Histórico completo da jornada do funcionário.</p>
             </div>
-          )}
 
-        {!carregando &&
-          !erro &&
-          registros.length > 0 && (
-            <section className="registros-usuario-records">
-              <div className="registros-usuario-section-title">
-                <h2>
-                  Registros
-                </h2>
+            <div className="registros-usuario-full-table-wrapper">
+              <table className="registros-usuario-full-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
 
-                <p>
-                  Histórico detalhado do funcionário.
-                </p>
-              </div>
+                    <th>Entrada</th>
 
-              <div className="registros-usuario-days">
-                {Object.entries(
-                  registrosAgrupados
-                ).map(
-                  ([
-                    dataRegistro,
-                    registrosDoDia,
-                  ]) => {
-                    const registrosOrdenados =
-                      ordenarRegistros(
-                        registrosDoDia
-                      );
+                    <th>Início almoço</th>
 
-                    const calculoDia =
-                      buscarCalculoDoDia(
-                        dataRegistro
-                      );
+                    <th>Fim almoço</th>
 
-                    return (
-                      <article
-                        className="registros-usuario-day-card"
-                        key={dataRegistro}
-                      >
-                        <div className="registros-usuario-day-header">
-                          <h3>
-                            {dataRegistro}
-                          </h3>
+                    <th>Saída</th>
 
-                          {calculoDia?.completo ? (
-                            <span className="registros-usuario-day-status registros-usuario-complete">
-                              Jornada completa
-                            </span>
-                          ) : (
-                            <span className="registros-usuario-day-status registros-usuario-incomplete">
-                              Jornada incompleta
-                            </span>
-                          )}
-                        </div>
+                    <th>Trabalhado</th>
 
-                        <div className="registros-usuario-table-wrapper">
-                          <table className="registros-usuario-table">
-                            <thead>
-                              <tr>
-                                <th>
-                                  Tipo
-                                </th>
+                    <th>Jornada</th>
 
-                                <th>
-                                  Hora
-                                </th>
-                              </tr>
-                            </thead>
+                    <th>Saldo</th>
 
-                            <tbody>
-                              {registrosOrdenados.map(
-                                (
-                                  registro,
-                                  index
-                                ) => {
-                                  const {
-                                    hora,
-                                  } =
-                                    separarDataHora(
-                                      registro.data_hora
-                                    );
+                    <th>Extras</th>
+                  </tr>
+                </thead>
 
-                                  return (
-                                    <tr
-                                      key={
-                                        index
-                                      }
-                                    >
-                                      <td>
-                                        <span
-                                          className={`registros-usuario-type registros-usuario-type-${registro.tipo}`}
-                                        >
-                                          {nomesTipos[
-                                            registro.tipo
-                                          ] ||
-                                            registro.tipo}
-                                        </span>
-                                      </td>
+                <tbody>
+                  {linhasHistorico.map((linha) => (
+                    <tr key={linha.data}>
+                      <td className="registros-usuario-full-table-date">
+                        {linha.data}
+                      </td>
 
-                                      <td className="registros-usuario-time">
-                                        {hora}
-                                      </td>
-                                    </tr>
-                                  );
-                                }
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
+                      <td>{linha.entrada}</td>
 
-                        <div className="registros-usuario-day-total">
-                          {calculoDia?.completo ? (
-                            <>
-                              <span>
-                                Total trabalhado
-                              </span>
+                      <td>{linha.inicioAlmoco}</td>
 
-                              <strong>
-                                {
-                                  calculoDia.horasFormatadas
-                                }
-                              </strong>
-                            </>
-                          ) : (
-                            <span>
-                              Jornada ainda não concluída.
-                            </span>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  }
-                )}
-              </div>
-            </section>
-          )}
+                      <td>{linha.fimAlmoco}</td>
+
+                      <td>{linha.saida}</td>
+
+                      <td className="registros-usuario-full-table-worked">
+                        {linha.trabalhado}
+                      </td>
+
+                      <td>{linha.jornada}</td>
+
+                      <td>
+                        <span
+                          className={
+                            linha.saldoSegundos > 0
+                              ? "registros-usuario-table-saldo-positive"
+                              : linha.saldoSegundos < 0
+                                ? "registros-usuario-table-saldo-negative"
+                                : "registros-usuario-table-saldo-neutral"
+                          }
+                        >
+                          {linha.saldo}
+                        </span>
+                      </td>
+
+                      <td>
+                        <strong className="registros-usuario-table-extra">
+                          {linha.extras}
+                        </strong>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

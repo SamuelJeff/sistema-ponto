@@ -9,10 +9,12 @@ function Historico() {
 
   const [registros, setRegistros] = useState([]);
   const [calculos, setCalculos] = useState([]);
-  const [resumoMensal, setResumoMensal] = useState(null);
+  const [resumoMensal, setResumoMensal] =
+    useState(null);
 
   const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] =
+    useState(true);
 
   const [data, setData] = useState("");
   const [mes, setMes] = useState("");
@@ -20,21 +22,9 @@ function Historico() {
   const [inicio, setInicio] = useState("");
   const [fim, setFim] = useState("");
 
-  const nomesTipos = {
-    entrada: "Entrada",
-    inicio_almoco: "Início do almoço",
-    fim_almoco: "Fim do almoço",
-    saida: "Saída",
-  };
-
-  const ordemTipos = {
-    entrada: 1,
-    inicio_almoco: 2,
-    fim_almoco: 3,
-    saida: 4,
-  };
-
-  async function buscarRegistros(filtros = {}) {
+  async function buscarRegistros(
+    filtros = {}
+  ) {
     setErro("");
     setCarregando(true);
 
@@ -46,10 +36,17 @@ function Historico() {
         }
       );
 
-      setRegistros(response.data.registros || []);
-      setCalculos(response.data.calculos || []);
+      setRegistros(
+        response.data.registros || []
+      );
+
+      setCalculos(
+        response.data.calculos || []
+      );
+
       setResumoMensal(
-        response.data.resumoMensal || null
+        response.data.resumoMensal ||
+          null
       );
     } catch (error) {
       console.error(error);
@@ -88,7 +85,10 @@ function Historico() {
     event.preventDefault();
 
     if (!mes || !ano) {
-      setErro("Informe o mês e o ano.");
+      setErro(
+        "Informe o mês e o ano."
+      );
+
       return;
     }
 
@@ -98,7 +98,9 @@ function Historico() {
     });
   }
 
-  function buscarPorIntervalo(event) {
+  function buscarPorIntervalo(
+    event
+  ) {
     event.preventDefault();
 
     if (!inicio || !fim) {
@@ -139,16 +141,24 @@ function Historico() {
     navigate("/dashboard");
   }
 
-  function separarDataHora(dataHora) {
-    const partes = dataHora.split(",");
+  function separarDataHora(
+    dataHora
+  ) {
+    const partes =
+      dataHora.split(",");
 
     return {
-      data: partes[0]?.trim(),
-      hora: partes[1]?.trim(),
+      data:
+        partes[0]?.trim(),
+
+      hora:
+        partes[1]?.trim(),
     };
   }
 
-  function converterDataParaIso(dataFormatada) {
+  function converterDataParaIso(
+    dataFormatada
+  ) {
     const [dia, mes, ano] =
       dataFormatada.split("/");
 
@@ -167,7 +177,9 @@ function Historico() {
           grupos[data] = [];
         }
 
-        grupos[data].push(registro);
+        grupos[data].push(
+          registro
+        );
 
         return grupos;
       },
@@ -175,15 +187,9 @@ function Historico() {
     );
   }
 
-  function ordenarRegistros(registrosDoDia) {
-    return [...registrosDoDia].sort(
-      (a, b) =>
-        ordemTipos[a.tipo] -
-        ordemTipos[b.tipo]
-    );
-  }
-
-  function buscarCalculoDoDia(dataFormatada) {
+  function buscarCalculoDoDia(
+    dataFormatada
+  ) {
     const dataIso =
       converterDataParaIso(
         dataFormatada
@@ -195,8 +201,119 @@ function Historico() {
     );
   }
 
-  const registrosAgrupados =
-    agruparRegistrosPorData();
+  function buscarHoraDoRegistro(
+    registrosDoDia,
+    tipo
+  ) {
+    const registro =
+      registrosDoDia.find(
+        (item) =>
+          item.tipo === tipo
+      );
+
+    if (!registro) {
+      return "-";
+    }
+
+    const { hora } =
+      separarDataHora(
+        registro.data_hora
+      );
+
+    return hora || "-";
+  }
+
+  function montarLinhasHistorico() {
+    const registrosAgrupados =
+      agruparRegistrosPorData();
+
+    return Object.entries(
+      registrosAgrupados
+    )
+      .map(
+        ([
+          dataRegistro,
+          registrosDoDia,
+        ]) => {
+          const calculoDia =
+            buscarCalculoDoDia(
+              dataRegistro
+            );
+
+          return {
+            data:
+              dataRegistro,
+
+            entrada:
+              buscarHoraDoRegistro(
+                registrosDoDia,
+                "entrada"
+              ),
+
+            inicioAlmoco:
+              buscarHoraDoRegistro(
+                registrosDoDia,
+                "inicio_almoco"
+              ),
+
+            fimAlmoco:
+              buscarHoraDoRegistro(
+                registrosDoDia,
+                "fim_almoco"
+              ),
+
+            saida:
+              buscarHoraDoRegistro(
+                registrosDoDia,
+                "saida"
+              ),
+
+            trabalhado:
+              calculoDia
+                ?.horasFormatadas ||
+              "-",
+
+            jornada:
+              calculoDia
+                ?.jornadaEsperadaFormatada ||
+              "-",
+
+            saldo:
+              calculoDia
+                ?.saldoFormatado ||
+              "-",
+
+            saldoSegundos:
+              calculoDia
+                ?.saldoSegundos ??
+              null,
+
+            extras:
+              calculoDia
+                ?.horasExtrasFormatadas ||
+              "-",
+          };
+        }
+      )
+      .sort((a, b) => {
+        const dataA =
+          converterDataParaIso(
+            a.data
+          );
+
+        const dataB =
+          converterDataParaIso(
+            b.data
+          );
+
+        return dataB.localeCompare(
+          dataA
+        );
+      });
+  }
+
+  const linhasHistorico =
+    montarLinhasHistorico();
 
   return (
     <main className="historico-page">
@@ -207,16 +324,22 @@ function Historico() {
               Sistema de Ponto
             </p>
 
-            <h1>Meu Histórico</h1>
+            <h1>
+              Meu Histórico
+            </h1>
 
             <p className="historico-description">
-              Consulte seus registros e horas trabalhadas.
+              Consulte seus registros,
+              horas trabalhadas, saldo e
+              horas extras.
             </p>
           </div>
 
           <button
             className="historico-back-button"
-            onClick={voltarDashboard}
+            onClick={
+              voltarDashboard
+            }
           >
             Voltar
           </button>
@@ -224,20 +347,27 @@ function Historico() {
 
         <section className="historico-filter-card">
           <div className="historico-section-title">
-            <h2>Filtros</h2>
+            <h2>
+              Filtros
+            </h2>
 
             <p>
-              Escolha uma das opções abaixo para consultar
-              seus registros.
+              Escolha uma das opções
+              abaixo para consultar seus
+              registros.
             </p>
           </div>
 
           <div className="historico-filters-grid">
             <form
               className="historico-filter"
-              onSubmit={buscarPorData}
+              onSubmit={
+                buscarPorData
+              }
             >
-              <h3>Data específica</h3>
+              <h3>
+                Data específica
+              </h3>
 
               <div className="historico-field">
                 <label htmlFor="data">
@@ -248,22 +378,33 @@ function Historico() {
                   id="data"
                   type="date"
                   value={data}
-                  onChange={(event) =>
-                    setData(event.target.value)
+                  onChange={(
+                    event
+                  ) =>
+                    setData(
+                      event.target
+                        .value
+                    )
                   }
                 />
               </div>
 
-              <button type="submit">
+              <button
+                type="submit"
+              >
                 Buscar
               </button>
             </form>
 
             <form
               className="historico-filter"
-              onSubmit={buscarPorMes}
+              onSubmit={
+                buscarPorMes
+              }
             >
-              <h3>Mês</h3>
+              <h3>
+                Mês
+              </h3>
 
               <div className="historico-field">
                 <label htmlFor="mes">
@@ -273,26 +414,66 @@ function Historico() {
                 <select
                   id="mes"
                   value={mes}
-                  onChange={(event) =>
-                    setMes(event.target.value)
+                  onChange={(
+                    event
+                  ) =>
+                    setMes(
+                      event.target
+                        .value
+                    )
                   }
                 >
                   <option value="">
                     Selecione
                   </option>
 
-                  <option value="1">Janeiro</option>
-                  <option value="2">Fevereiro</option>
-                  <option value="3">Março</option>
-                  <option value="4">Abril</option>
-                  <option value="5">Maio</option>
-                  <option value="6">Junho</option>
-                  <option value="7">Julho</option>
-                  <option value="8">Agosto</option>
-                  <option value="9">Setembro</option>
-                  <option value="10">Outubro</option>
-                  <option value="11">Novembro</option>
-                  <option value="12">Dezembro</option>
+                  <option value="1">
+                    Janeiro
+                  </option>
+
+                  <option value="2">
+                    Fevereiro
+                  </option>
+
+                  <option value="3">
+                    Março
+                  </option>
+
+                  <option value="4">
+                    Abril
+                  </option>
+
+                  <option value="5">
+                    Maio
+                  </option>
+
+                  <option value="6">
+                    Junho
+                  </option>
+
+                  <option value="7">
+                    Julho
+                  </option>
+
+                  <option value="8">
+                    Agosto
+                  </option>
+
+                  <option value="9">
+                    Setembro
+                  </option>
+
+                  <option value="10">
+                    Outubro
+                  </option>
+
+                  <option value="11">
+                    Novembro
+                  </option>
+
+                  <option value="12">
+                    Dezembro
+                  </option>
                 </select>
               </div>
 
@@ -305,23 +486,34 @@ function Historico() {
                   id="ano"
                   type="number"
                   value={ano}
-                  onChange={(event) =>
-                    setAno(event.target.value)
+                  onChange={(
+                    event
+                  ) =>
+                    setAno(
+                      event.target
+                        .value
+                    )
                   }
                   placeholder="2026"
                 />
               </div>
 
-              <button type="submit">
+              <button
+                type="submit"
+              >
                 Buscar
               </button>
             </form>
 
             <form
               className="historico-filter"
-              onSubmit={buscarPorIntervalo}
+              onSubmit={
+                buscarPorIntervalo
+              }
             >
-              <h3>Intervalo</h3>
+              <h3>
+                Intervalo
+              </h3>
 
               <div className="historico-field">
                 <label htmlFor="inicio">
@@ -332,8 +524,13 @@ function Historico() {
                   id="inicio"
                   type="date"
                   value={inicio}
-                  onChange={(event) =>
-                    setInicio(event.target.value)
+                  onChange={(
+                    event
+                  ) =>
+                    setInicio(
+                      event.target
+                        .value
+                    )
                   }
                 />
               </div>
@@ -347,13 +544,20 @@ function Historico() {
                   id="fim"
                   type="date"
                   value={fim}
-                  onChange={(event) =>
-                    setFim(event.target.value)
+                  onChange={(
+                    event
+                  ) =>
+                    setFim(
+                      event.target
+                        .value
+                    )
                   }
                 />
               </div>
 
-              <button type="submit">
+              <button
+                type="submit"
+              >
                 Buscar
               </button>
             </form>
@@ -362,7 +566,9 @@ function Historico() {
           <div className="historico-filter-actions">
             <button
               className="historico-clear-button"
-              onClick={limparFiltros}
+              onClick={
+                limparFiltros
+              }
             >
               Limpar filtros
             </button>
@@ -386,11 +592,18 @@ function Historico() {
           resumoMensal && (
             <section className="historico-summary">
               <div className="historico-section-title">
-                <h2>Resumo mensal</h2>
+                <h2>
+                  Resumo mensal
+                </h2>
 
                 <p>
-                  {resumoMensal.mes}/
-                  {resumoMensal.ano}
+                  {
+                    resumoMensal.mes
+                  }
+                  /
+                  {
+                    resumoMensal.ano
+                  }
                 </p>
               </div>
 
@@ -402,7 +615,8 @@ function Historico() {
 
                   <strong>
                     {
-                      resumoMensal.diasTrabalhados
+                      resumoMensal
+                        .diasTrabalhados
                     }
                   </strong>
                 </div>
@@ -414,7 +628,8 @@ function Historico() {
 
                   <strong>
                     {
-                      resumoMensal.diasCompletos
+                      resumoMensal
+                        .diasCompletos
                     }
                   </strong>
                 </div>
@@ -426,19 +641,59 @@ function Historico() {
 
                   <strong>
                     {
-                      resumoMensal.diasIncompletos
+                      resumoMensal
+                        .diasIncompletos
                     }
                   </strong>
                 </div>
 
-                <div className="summary-card summary-card-highlight">
+                <div className="summary-card">
                   <span>
                     Total trabalhado
                   </span>
 
                   <strong>
                     {
-                      resumoMensal.horasFormatadas
+                      resumoMensal
+                        .horasFormatadas
+                    }
+                  </strong>
+                </div>
+
+                <div
+                  className={`summary-card ${
+                    resumoMensal
+                      .saldoSegundos >
+                    0
+                      ? "summary-card-positive"
+                      : resumoMensal
+                            .saldoSegundos <
+                          0
+                        ? "summary-card-negative"
+                        : ""
+                  }`}
+                >
+                  <span>
+                    Saldo do mês
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal
+                        .saldoFormatado
+                    }
+                  </strong>
+                </div>
+
+                <div className="summary-card summary-card-highlight">
+                  <span>
+                    Horas extras
+                  </span>
+
+                  <strong>
+                    {
+                      resumoMensal
+                        .horasExtrasFormatadas
                     }
                   </strong>
                 </div>
@@ -448,7 +703,8 @@ function Historico() {
 
         {!carregando &&
           !erro &&
-          registros.length === 0 && (
+          linhasHistorico.length ===
+            0 && (
             <div className="historico-empty">
               Nenhum registro encontrado.
             </div>
@@ -456,128 +712,142 @@ function Historico() {
 
         {!carregando &&
           !erro &&
-          registros.length > 0 && (
+          linhasHistorico.length >
+            0 && (
             <section className="historico-records">
               <div className="historico-section-title">
-                <h2>Registros</h2>
+                <h2>
+                  Registros
+                </h2>
 
                 <p>
-                  Histórico detalhado da sua jornada.
+                  Histórico completo da
+                  sua jornada.
                 </p>
               </div>
 
-              <div className="historico-days">
-                {Object.entries(
-                  registrosAgrupados
-                ).map(
-                  ([
-                    dataRegistro,
-                    registrosDoDia,
-                  ]) => {
-                    const registrosOrdenados =
-                      ordenarRegistros(
-                        registrosDoDia
-                      );
+              <div className="historico-full-table-wrapper">
+                <table className="historico-full-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        Data
+                      </th>
 
-                    const calculoDia =
-                      buscarCalculoDoDia(
-                        dataRegistro
-                      );
+                      <th>
+                        Entrada
+                      </th>
 
-                    return (
-                      <article
-                        className="historico-day-card"
-                        key={dataRegistro}
-                      >
-                        <div className="historico-day-header">
-                          <h3>
-                            {dataRegistro}
-                          </h3>
+                      <th>
+                        Início almoço
+                      </th>
 
-                          {calculoDia?.completo ? (
-                            <span className="historico-day-status historico-day-complete">
-                              Jornada completa
+                      <th>
+                        Fim almoço
+                      </th>
+
+                      <th>
+                        Saída
+                      </th>
+
+                      <th>
+                        Trabalhado
+                      </th>
+
+                      <th>
+                        Jornada
+                      </th>
+
+                      <th>
+                        Saldo
+                      </th>
+
+                      <th>
+                        Extras
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {linhasHistorico.map(
+                      (linha) => (
+                        <tr
+                          key={
+                            linha.data
+                          }
+                        >
+                          <td className="historico-full-table-date">
+                            {
+                              linha.data
+                            }
+                          </td>
+
+                          <td>
+                            {
+                              linha.entrada
+                            }
+                          </td>
+
+                          <td>
+                            {
+                              linha.inicioAlmoco
+                            }
+                          </td>
+
+                          <td>
+                            {
+                              linha.fimAlmoco
+                            }
+                          </td>
+
+                          <td>
+                            {
+                              linha.saida
+                            }
+                          </td>
+
+                          <td className="historico-full-table-worked">
+                            {
+                              linha.trabalhado
+                            }
+                          </td>
+
+                          <td>
+                            {
+                              linha.jornada
+                            }
+                          </td>
+
+                          <td>
+                            <span
+                              className={
+                                linha.saldoSegundos >
+                                0
+                                  ? "historico-table-saldo-positive"
+                                  : linha.saldoSegundos <
+                                      0
+                                    ? "historico-table-saldo-negative"
+                                    : "historico-table-saldo-neutral"
+                              }
+                            >
+                              {
+                                linha.saldo
+                              }
                             </span>
-                          ) : (
-                            <span className="historico-day-status historico-day-incomplete">
-                              Jornada incompleta
-                            </span>
-                          )}
-                        </div>
+                          </td>
 
-                        <div className="historico-table-wrapper">
-                          <table className="historico-table">
-                            <thead>
-                              <tr>
-                                <th>Tipo</th>
-                                <th>Hora</th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-                              {registrosOrdenados.map(
-                                (
-                                  registro,
-                                  index
-                                ) => {
-                                  const {
-                                    hora,
-                                  } =
-                                    separarDataHora(
-                                      registro.data_hora
-                                    );
-
-                                  return (
-                                    <tr
-                                      key={
-                                        index
-                                      }
-                                    >
-                                      <td>
-                                        <span
-                                          className={`historico-type historico-type-${registro.tipo}`}
-                                        >
-                                          {nomesTipos[
-                                            registro.tipo
-                                          ] ||
-                                            registro.tipo}
-                                        </span>
-                                      </td>
-
-                                      <td className="historico-time">
-                                        {hora}
-                                      </td>
-                                    </tr>
-                                  );
-                                }
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div className="historico-day-total">
-                          {calculoDia?.completo ? (
-                            <>
-                              <span>
-                                Total trabalhado
-                              </span>
-
-                              <strong>
-                                {
-                                  calculoDia.horasFormatadas
-                                }
-                              </strong>
-                            </>
-                          ) : (
-                            <span>
-                              Jornada ainda não concluída.
-                            </span>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  }
-                )}
+                          <td>
+                            <strong className="historico-table-extra">
+                              {
+                                linha.extras
+                              }
+                            </strong>
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
               </div>
             </section>
           )}

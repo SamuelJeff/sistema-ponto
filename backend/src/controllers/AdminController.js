@@ -1,80 +1,147 @@
 const RegistroService = require("../services/RegistroService");
 const CalculoHorasService = require("../services/CalculoHorasService");
 const UserModel = require("../models/UserModel");
-const { formatarDataRecife } = require("../utils/date");
+
+const {
+  formatarDataRecife,
+} = require("../utils/date");
 
 class AdminController {
   constructor() {
-    this.registrosUsuario = this.registrosUsuario.bind(this);
-    this.usuarios = this.usuarios.bind(this);
-    this.registros = this.registros.bind(this);
+    this.registrosUsuario =
+      this.registrosUsuario.bind(this);
+
+    this.usuarios =
+      this.usuarios.bind(this);
+
+    this.registros =
+      this.registros.bind(this);
   }
 
- async registrosUsuario(req, res, next) {
-  try {
-    const { id } = req.params;
+  async registrosUsuario(
+    req,
+    res,
+    next
+  ) {
+    try {
+      const { id } = req.params;
 
-    const {
-      data,
-      mes,
-      ano,
-      inicio,
-      fim,
-    } = req.query;
+      const {
+        data,
+        mes,
+        ano,
+        inicio,
+        fim,
+      } = req.query;
 
-    const registros =
-      await RegistroService.meusRegistros(
-        id,
-        {
-          data,
-          mes,
-          ano,
-          inicio,
-          fim,
-        }
-      );
+      /*
+       * Busca o usuário cujo histórico
+       * o administrador está consultando.
+       */
+      const usuario =
+        await UserModel.findById(id);
 
-    const registrosFormatados =
-      registros.map((registro) => ({
-        tipo: registro.tipo,
-        data_hora: formatarDataRecife(
-          registro.data_hora
-        ),
-      }));
+      if (!usuario) {
+        return res.status(404).json({
+          message:
+            "Usuário não encontrado.",
+        });
+      }
 
-    const calculos =
-      CalculoHorasService
-        .calcularHorasPorDia(
-          registros
+      /*
+       * Jornada do próprio funcionário.
+       * 480 minutos = 8 horas.
+       */
+      const jornadaDiariaMinutos =
+        usuario.jornada_diaria_minutos ??
+        480;
+
+      const registros =
+        await RegistroService.meusRegistros(
+          id,
+          {
+            data,
+            mes,
+            ano,
+            inicio,
+            fim,
+          }
         );
 
-    let resumoMensal = null;
+      const registrosFormatados =
+        registros.map(
+          (registro) => ({
+            tipo:
+              registro.tipo,
 
-    if (mes && ano) {
-      resumoMensal =
+            data_hora:
+              formatarDataRecife(
+                registro.data_hora
+              ),
+          })
+        );
+
+      /*
+       * Passamos a jornada do funcionário
+       * para o cálculo.
+       */
+      const calculos =
         CalculoHorasService
-          .calcularResumoMensal(
-            calculos,
-            mes,
-            ano
+          .calcularHorasPorDia(
+            registros,
+            jornadaDiariaMinutos
           );
-    }
 
-    return res.status(200).json({
-      registros: registrosFormatados,
-      calculos,
-      resumoMensal,
-    });
-  } catch (error) {
-    next(error);
+      let resumoMensal = null;
+
+      if (mes && ano) {
+        resumoMensal =
+          CalculoHorasService
+            .calcularResumoMensal(
+              calculos,
+              mes,
+              ano
+            );
+      }
+
+      return res.status(200).json({
+        usuario: {
+          id:
+            usuario.id,
+
+          nome:
+            usuario.nome,
+
+          email:
+            usuario.email,
+
+          cargo:
+            usuario.cargo,
+
+          jornada_diaria_minutos:
+            jornadaDiariaMinutos,
+        },
+
+        registros:
+          registrosFormatados,
+
+        calculos,
+
+        resumoMensal,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-}
 
   async usuarios(req, res, next) {
     try {
-      const usuarios = await UserModel.findAll();
+      const usuarios =
+        await UserModel.findAll();
 
-      return res.status(200).json(usuarios);
+      return res
+        .status(200)
+        .json(usuarios);
     } catch (error) {
       next(error);
     }
@@ -82,21 +149,42 @@ class AdminController {
 
   async registros(req, res, next) {
     try {
-      const registros = await RegistroService.findAllWithUsers();
+      const registros =
+        await RegistroService
+          .findAllWithUsers();
 
-      const registrosFormatados = registros.map((registro) => ({
-        nome: registro.nome,
-        email: registro.email,
-        cargo: registro.cargo,
-        tipo: registro.tipo,
-        data_hora: formatarDataRecife(registro.data_hora),
-      }));
+      const registrosFormatados =
+        registros.map(
+          (registro) => ({
+            nome:
+              registro.nome,
 
-      return res.status(200).json(registrosFormatados);
+            email:
+              registro.email,
+
+            cargo:
+              registro.cargo,
+
+            tipo:
+              registro.tipo,
+
+            data_hora:
+              formatarDataRecife(
+                registro.data_hora
+              ),
+          })
+        );
+
+      return res
+        .status(200)
+        .json(
+          registrosFormatados
+        );
     } catch (error) {
       next(error);
     }
   }
 }
 
-module.exports = new AdminController();
+module.exports =
+  new AdminController();

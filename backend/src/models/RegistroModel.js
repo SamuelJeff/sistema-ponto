@@ -5,57 +5,125 @@ class RegistroModel {
     return knex("registros").insert(registro);
   }
 
-  async findByUserId(userId, filtros = {}) {
+  async findByUserId(
+    userId,
+    filtros = {}
+  ) {
     const query = knex("registros")
-      .select("tipo", "data_hora")
-      .where({ user_id: userId });
+      .select(
+        "tipo",
+        "data_hora"
+      )
+      .where({
+        user_id: userId,
+      });
 
-    // Filtro por dia
+    /*
+     * FILTRO POR DIA
+     *
+     * Recife = UTC-3
+     *
+     * Exemplo:
+     * 2026-08-15
+     */
     if (filtros.data) {
       query.whereRaw(
-        "DATE(data_hora AT TIME ZONE 'America/Recife') = ?",
+        "DATE(data_hora, '-3 hours') = ?",
         [filtros.data]
       );
     }
 
-    // Filtro por mês e ano
-    if (filtros.mes && filtros.ano) {
+    /*
+     * FILTRO POR MÊS E ANO
+     *
+     * SQLite usa strftime.
+     *
+     * %m = mês
+     * %Y = ano
+     */
+    if (
+      filtros.mes &&
+      filtros.ano
+    ) {
+      const mesFormatado =
+        String(
+          filtros.mes
+        ).padStart(
+          2,
+          "0"
+        );
+
+      const anoFormatado =
+        String(
+          filtros.ano
+        );
+
       query
         .whereRaw(
-          "EXTRACT(MONTH FROM data_hora AT TIME ZONE 'America/Recife') = ?",
-          [filtros.mes]
+          "strftime('%m', data_hora, '-3 hours') = ?",
+          [mesFormatado]
         )
         .whereRaw(
-          "EXTRACT(YEAR FROM data_hora AT TIME ZONE 'America/Recife') = ?",
-          [filtros.ano]
+          "strftime('%Y', data_hora, '-3 hours') = ?",
+          [anoFormatado]
         );
     }
 
-    // Filtro por intervalo
-    if (filtros.inicio && filtros.fim) {
+    /*
+     * FILTRO POR INTERVALO
+     */
+    if (
+      filtros.inicio &&
+      filtros.fim
+    ) {
       query.whereRaw(
-        "DATE(data_hora AT TIME ZONE 'America/Recife') BETWEEN ? AND ?",
-        [filtros.inicio, filtros.fim]
+        "DATE(data_hora, '-3 hours') BETWEEN ? AND ?",
+        [
+          filtros.inicio,
+          filtros.fim,
+        ]
       );
     }
 
-    return query.orderBy("data_hora", "desc");
+    return query.orderBy(
+      "data_hora",
+      "desc"
+    );
   }
 
-  async findLastByUserToday(userId) {
+  async findLastByUserToday(
+    userId
+  ) {
     return knex("registros")
-      .select("tipo", "data_hora")
-      .where("user_id", userId)
-      .whereRaw(
-        "DATE(data_hora AT TIME ZONE 'America/Recife') = CURRENT_DATE"
+      .select(
+        "tipo",
+        "data_hora"
       )
-      .orderBy("data_hora", "desc")
+      .where(
+        "user_id",
+        userId
+      )
+      .whereRaw(
+        `
+        DATE(data_hora, '-3 hours')
+        =
+        DATE('now', '-3 hours')
+        `
+      )
+      .orderBy(
+        "data_hora",
+        "desc"
+      )
       .first();
   }
 
   async findAllWithUsers() {
     return knex("registros")
-      .join("users", "users.id", "registros.user_id")
+      .join(
+        "users",
+        "users.id",
+        "registros.user_id"
+      )
       .select(
         "users.nome",
         "users.email",
@@ -63,8 +131,12 @@ class RegistroModel {
         "registros.tipo",
         "registros.data_hora"
       )
-      .orderBy("registros.data_hora", "desc");
+      .orderBy(
+        "registros.data_hora",
+        "desc"
+      );
   }
 }
 
-module.exports = new RegistroModel();
+module.exports =
+  new RegistroModel();

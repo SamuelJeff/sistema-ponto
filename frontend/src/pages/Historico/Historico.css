@@ -1,10 +1,7 @@
 .historico-page {
   position: relative;
-
   min-height: 100vh;
-
   padding: 42px 24px 60px;
-
   overflow: hidden;
 
   background:
@@ -31,7 +28,6 @@
 
 .historico-page::before {
   content: "";
-
   position: absolute;
 
   width: 430px;
@@ -56,7 +52,6 @@
 
 .historico-page::after {
   content: "";
-
   position: absolute;
 
   width: 540px;
@@ -77,13 +72,14 @@
   pointer-events: none;
 }
 
+/* CONTAINER */
+
 .historico-container {
   position: relative;
-
   z-index: 2;
 
   width: 100%;
-  max-width: 1100px;
+  max-width: 1250px;
 
   margin: 0 auto;
 }
@@ -95,7 +91,7 @@
 
   position: absolute;
 
-  top: 160px;
+  top: 150px;
   right: -55px;
 
   color:
@@ -115,12 +111,13 @@
   position: absolute;
 
   left: -65px;
-  top: 550px;
+  top: 500px;
 
   color:
     rgba(181, 232, 195, 0.34);
 
   font-size: 62px;
+  font-weight: 300;
 
   transform:
     rotate(15deg);
@@ -140,8 +137,7 @@
   gap: 24px;
 
   padding: 24px 26px;
-
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   overflow: hidden;
 
@@ -161,8 +157,6 @@
   backdrop-filter:
     blur(12px);
 }
-
-/* CÍRCULO DO CABEÇALHO */
 
 .historico-header::after {
   content: "";
@@ -193,14 +187,12 @@
 
   margin-bottom: 4px;
 
-  color:
-    #b5e8c3;
+  color: #b5e8c3;
 
   font-size: 13px;
   font-weight: 800;
 
   text-transform: uppercase;
-
   letter-spacing: 0.1em;
 }
 
@@ -258,24 +250,22 @@
 /* TÍTULOS */
 
 .historico-section-title {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .historico-section-title h2 {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 
-  color:
-    #1f192f;
+  color: #1f192f;
 
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 800;
 }
 
 .historico-section-title p {
-  color:
-    #6b7280;
+  color: #6b7280;
 
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* CARD DE FILTROS */
@@ -283,9 +273,9 @@
 .historico-filter-card {
   position: relative;
 
-  padding: 26px;
+  padding: 18px 20px;
 
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   overflow: hidden;
 
@@ -296,38 +286,41 @@
     1px solid
     rgba(255, 255, 255, 0.6);
 
-  border-radius: 20px;
+  border-radius: 16px;
 
   box-shadow:
-    0 14px 35px
-    rgba(31, 25, 47, 0.12);
+    0 10px 28px
+    rgba(31, 25, 47, 0.1);
 
   backdrop-filter:
     blur(12px);
 }
-
-/* DECORAÇÃO DO CARD */
 
 .historico-filter-card::before {
   content: "";
 
   position: absolute;
 
-  width: 130px;
-  height: 130px;
+  width: 100px;
+  height: 100px;
 
-  top: -70px;
-  right: 120px;
+  top: -55px;
+  right: 100px;
 
   border-radius: 50%;
 
   background:
-    rgba(101, 184, 166, 0.1);
+    rgba(101, 184, 166, 0.08);
 
   pointer-events: none;
 }
 
-/* GRID DE FILTROS */
+.historico-filter-card
+  .historico-section-title {
+  margin-bottom: 12px;
+}
+
+/* FILTROS */
 
 .historico-filters-grid {
   position: relative;
@@ -338,53 +331,42 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 12px;
 }
 
 .historico-filter {
   display: flex;
   flex-direction: column;
 
-  gap: 12px;
+  gap: 8px;
 
-  padding: 18px;
+  padding: 13px 14px;
 
-  background:
-    linear-gradient(
-      160deg,
-      #ffffff,
-      #f7faf8
-    );
+  background: #ffffff;
 
   border:
     1px solid
-    rgba(45, 96, 115, 0.11);
+    #dce5e2;
 
-  border-radius: 13px;
+  border-radius: 10px;
 
   transition:
-    transform 0.2s,
-    box-shadow 0.2s,
-    border-color 0.2s;
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .historico-filter:hover {
-  transform:
-    translateY(-2px);
-
-  border-color:
-    #65b8a6;
+  border-color: #65b8a6;
 
   box-shadow:
-    0 10px 22px
-    rgba(45, 96, 115, 0.09);
+    0 6px 14px
+    rgba(45, 96, 115, 0.08);
 }
 
 .historico-filter h3 {
-  color:
-    #1f192f;
+  color: #1f192f;
 
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -392,39 +374,50 @@
   display: flex;
   flex-direction: column;
 
-  gap: 6px;
+  gap: 4px;
 }
 
 .historico-field label {
-  color:
-    #1f192f;
+  color: #1f192f;
 
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .historico-field input,
 .historico-field select {
-  background:
-    #ffffff;
+  min-height: 38px;
+
+  padding: 8px 10px;
+
+  background: #ffffff;
 
   border:
     1px solid
     #dce5e2;
+
+  font-size: 13px;
 }
 
 .historico-field input:focus,
 .historico-field select:focus {
-  border-color:
-    #65b8a6;
+  border-color: #65b8a6;
 
   box-shadow:
-    0 0 0 4px
-    rgba(101, 184, 166, 0.14);
+    0 0 0 3px
+    rgba(101, 184, 166, 0.13);
 }
 
+/* BOTÕES DOS FILTROS */
+
 .historico-filter button {
+  min-height: 36px;
+
   margin-top: auto;
+
+  padding: 8px 12px;
+
+  font-size: 13px;
 
   background:
     linear-gradient(
@@ -434,17 +427,16 @@
     );
 
   box-shadow:
-    0 6px 14px
-    rgba(45, 96, 115, 0.16);
+    0 4px 10px
+    rgba(45, 96, 115, 0.14);
 }
 
 .historico-filter button:hover:not(:disabled) {
-  transform:
-    translateY(-1px);
+  transform: translateY(-1px);
 
   box-shadow:
-    0 9px 18px
-    rgba(45, 96, 115, 0.22);
+    0 7px 14px
+    rgba(45, 96, 115, 0.2);
 }
 
 /* LIMPAR FILTROS */
@@ -453,34 +445,34 @@
   display: flex;
   justify-content: flex-end;
 
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .historico-clear-button {
-  background:
-    #ffffff;
+  padding: 8px 13px;
 
-  color:
-    #1f192f;
+  background: #ffffff;
+
+  color: #1f192f;
 
   border:
     1px solid
     #d5dfdc;
+
+  font-size: 13px;
 }
 
 .historico-clear-button:hover:not(:disabled) {
-  background:
-    #f0f7da;
+  background: #f0f7da;
 
-  border-color:
-    #65b8a6;
+  border-color: #65b8a6;
 }
 
-/* CARREGANDO / SEM RESULTADOS */
+/* STATUS */
 
 .historico-status,
 .historico-empty {
-  padding: 24px;
+  padding: 20px;
 
   text-align: center;
 
@@ -491,10 +483,9 @@
     1px solid
     rgba(255, 255, 255, 0.55);
 
-  border-radius: 15px;
+  border-radius: 14px;
 
-  color:
-    #5e6865;
+  color: #5e6865;
 
   box-shadow:
     0 10px 26px
@@ -502,15 +493,13 @@
 }
 
 .historico-error {
-  padding: 14px 16px;
+  padding: 13px 15px;
 
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
-  color:
-    #b42318;
+  color: #b42318;
 
-  background:
-    #fef2f2;
+  background: #fef2f2;
 
   border:
     1px solid
@@ -524,9 +513,9 @@
 .historico-summary {
   position: relative;
 
-  padding: 26px;
+  padding: 20px;
 
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   overflow: hidden;
 
@@ -537,10 +526,10 @@
     1px solid
     rgba(255, 255, 255, 0.6);
 
-  border-radius: 20px;
+  border-radius: 16px;
 
   box-shadow:
-    0 14px 35px
+    0 10px 28px
     rgba(31, 25, 47, 0.1);
 }
 
@@ -549,16 +538,16 @@
 
   position: absolute;
 
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
 
-  right: -50px;
-  top: -50px;
+  right: -45px;
+  top: -45px;
 
   border-radius: 50%;
 
   background:
-    rgba(181, 232, 195, 0.2);
+    rgba(181, 232, 195, 0.18);
 
   pointer-events: none;
 }
@@ -570,18 +559,18 @@
   display: grid;
 
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(3, minmax(0, 1fr));
 
-  gap: 16px;
+  gap: 12px;
 }
 
 .summary-card {
   display: flex;
   flex-direction: column;
 
-  gap: 8px;
+  gap: 6px;
 
-  padding: 18px;
+  padding: 14px 16px;
 
   background:
     linear-gradient(
@@ -594,23 +583,49 @@
     1px solid
     #e2e9e6;
 
-  border-radius: 13px;
+  border-radius: 10px;
 }
 
 .summary-card span {
-  color:
-    #6b7280;
+  color: #6b7280;
 
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .summary-card strong {
-  color:
-    #1f192f;
+  color: #1f192f;
 
-  font-size: 24px;
+  font-size: 21px;
 }
+
+/* SALDO POSITIVO */
+
+.summary-card-positive {
+  background:
+    rgba(181, 232, 195, 0.35);
+
+  border-color:
+    rgba(101, 184, 166, 0.3);
+}
+
+.summary-card-positive strong {
+  color: #287a68;
+}
+
+/* SALDO NEGATIVO */
+
+.summary-card-negative {
+  background: #fef2f2;
+
+  border-color: #fecaca;
+}
+
+.summary-card-negative strong {
+  color: #b42318;
+}
+
+/* HORAS EXTRAS */
 
 .summary-card-highlight {
   background:
@@ -625,257 +640,322 @@
 }
 
 .summary-card-highlight strong {
-  color:
-    #2d6073;
+  color: #2d6073;
 }
 
 /* REGISTROS */
 
 .historico-records {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
-.historico-records > .historico-section-title h2 {
+.historico-records
+  > .historico-section-title
+  h2 {
   color: #ffffff;
 }
 
-.historico-records > .historico-section-title p {
+.historico-records
+  > .historico-section-title
+  p {
   color:
     rgba(255, 255, 255, 0.72);
 }
 
-.historico-days {
-  display: flex;
-  flex-direction: column;
+/* CONTAINER DA TABELA */
 
-  gap: 18px;
-}
+.historico-full-table-wrapper {
+  width: 100%;
 
-/* CARD DO DIA */
+  overflow-x: auto;
 
-.historico-day-card {
-  overflow: hidden;
-
-  background:
-    rgba(255, 255, 255, 0.96);
+  background: #ffffff;
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.55);
+    #cbd8d4;
 
-  border-radius: 17px;
+  border-radius: 14px;
 
   box-shadow:
     0 12px 30px
-    rgba(31, 25, 47, 0.1);
-
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    rgba(31, 25, 47, 0.12);
 }
 
-.historico-day-card:hover {
-  transform:
-    translateY(-2px);
+/* SCROLL HORIZONTAL */
 
-  box-shadow:
-    0 16px 34px
-    rgba(31, 25, 47, 0.14);
+.historico-full-table-wrapper::-webkit-scrollbar {
+  height: 8px;
 }
 
-.historico-day-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 16px;
-
-  padding: 18px 20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(240, 247, 218, 0.48),
-      rgba(255, 255, 255, 0.8)
-    );
-
-  border-bottom:
-    1px solid
-    #e1e8e5;
+.historico-full-table-wrapper::-webkit-scrollbar-track {
+  background: #edf2f0;
 }
 
-.historico-day-header h3 {
-  color:
-    #1f192f;
-
-  font-size: 18px;
-  font-weight: 800;
-}
-
-/* STATUS */
-
-.historico-day-status {
-  padding: 6px 11px;
+.historico-full-table-wrapper::-webkit-scrollbar-thumb {
+  background: #65b8a6;
 
   border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.historico-day-complete {
-  color:
-    #286c5d;
-
-  background:
-    rgba(181, 232, 195, 0.58);
-}
-
-.historico-day-incomplete {
-  color:
-    #8a6410;
-
-  background:
-    #fff3c7;
 }
 
 /* TABELA */
 
-.historico-table {
+.historico-full-table {
   width: 100%;
 
-  table-layout: fixed;
+  min-width: 1050px;
+
+  border-collapse: collapse;
+
+  table-layout: auto;
 }
 
-.historico-table th {
-  padding: 12px 20px;
+/* CABEÇALHO DA TABELA */
 
+.historico-full-table thead {
   background:
-    #f8faf9;
-
-  color:
-    #1f192f;
+    linear-gradient(
+      135deg,
+      #1f192f,
+      #2d6073
+    );
 }
 
-.historico-table td {
-  padding: 14px 20px;
+.historico-full-table th {
+  padding: 13px 12px;
+
+  color: #ffffff;
+
+  background: transparent;
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.18);
+
+  border-bottom:
+    1px solid
+    #182533;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  text-align: center;
+
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+
+  white-space: nowrap;
 }
 
-.historico-table th:first-child,
-.historico-table td:first-child {
-  width: 55%;
+.historico-full-table th:first-child {
+  text-align: left;
 }
 
-.historico-table th:last-child,
-.historico-table td:last-child {
-  width: 45%;
+.historico-full-table th:last-child {
+  border-right: none;
 }
 
-.historico-table tbody tr {
-  transition:
-    background 0.2s;
-}
+/* CÉLULAS */
 
-.historico-table tbody tr:hover {
-  background:
-    rgba(240, 247, 218, 0.32);
-}
+.historico-full-table td {
+  padding: 13px 12px;
 
-/* TIPOS */
+  color: #374151;
 
-.historico-type {
-  display: inline-flex;
+  background: #ffffff;
 
-  padding: 5px 10px;
+  border-right:
+    1px solid
+    #d7e1de;
 
-  border-radius: 7px;
+  border-bottom:
+    1px solid
+    #d7e1de;
 
   font-size: 13px;
-  font-weight: 700;
+
+  text-align: center;
+
+  white-space: nowrap;
 }
 
-.historico-type-entrada {
-  color:
-    #256655;
+.historico-full-table td:first-child {
+  text-align: left;
+}
 
+.historico-full-table td:last-child {
+  border-right: none;
+}
+
+/* ÚLTIMA LINHA */
+
+.historico-full-table
+  tbody
+  tr:last-child
+  td {
+  border-bottom: none;
+}
+
+/* LINHAS ALTERNADAS */
+
+.historico-full-table
+  tbody
+  tr:nth-child(even)
+  td {
+  background: #f8faf9;
+}
+
+/* HOVER */
+
+.historico-full-table
+  tbody
+  tr:hover
+  td {
   background:
-    rgba(181, 232, 195, 0.55);
+    rgba(240, 247, 218, 0.72);
 }
 
-.historico-type-inicio_almoco {
-  color:
-    #285867;
+/* DATA */
 
-  background:
-    rgba(101, 184, 166, 0.23);
+.historico-full-table-date {
+  color: #1f192f !important;
+
+  font-weight: 800;
 }
 
-.historico-type-fim_almoco {
-  color:
-    #254e60;
+/* HORÁRIOS */
 
-  background:
-    rgba(45, 96, 115, 0.15);
-}
-
-.historico-type-saida {
-  color:
-    #1f192f;
-
-  background:
-    rgba(31, 25, 47, 0.08);
-}
-
-.historico-time {
-  color:
-    #1f192f;
-
+.historico-full-table
+  td:nth-child(2),
+.historico-full-table
+  td:nth-child(3),
+.historico-full-table
+  td:nth-child(4),
+.historico-full-table
+  td:nth-child(5),
+.historico-full-table
+  td:nth-child(6),
+.historico-full-table
+  td:nth-child(7),
+.historico-full-table
+  td:nth-child(8),
+.historico-full-table
+  td:nth-child(9) {
   font-family:
     Consolas,
     "Courier New",
     monospace;
-
-  font-weight: 700;
 }
 
-/* TOTAL DO DIA */
+/* TOTAL TRABALHADO */
 
-.historico-day-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.historico-full-table-worked {
+  color: #2d6073 !important;
 
-  gap: 16px;
+  font-weight: 800;
+}
 
-  padding: 16px 20px;
+/* SALDO POSITIVO */
+
+.historico-table-saldo-positive {
+  display: inline-flex;
+  justify-content: center;
+
+  min-width: 82px;
+
+  padding: 5px 8px;
+
+  color: #287a68;
 
   background:
-    linear-gradient(
-      90deg,
-      rgba(240, 247, 218, 0.65),
-      rgba(181, 232, 195, 0.25)
-    );
+    rgba(181, 232, 195, 0.45);
 
-  border-top:
+  border:
     1px solid
-    #dfe7e4;
+    rgba(101, 184, 166, 0.28);
+
+  border-radius: 6px;
+
+  font-weight: 800;
 }
 
-.historico-day-total span {
-  color:
-    #5f6865;
+/* SALDO NEGATIVO */
 
-  font-size: 14px;
+.historico-table-saldo-negative {
+  display: inline-flex;
+  justify-content: center;
+
+  min-width: 82px;
+
+  padding: 5px 8px;
+
+  color: #b42318;
+
+  background: #fef2f2;
+
+  border:
+    1px solid
+    #fecaca;
+
+  border-radius: 6px;
+
+  font-weight: 800;
 }
 
-.historico-day-total strong {
-  color:
-    #2d6073;
+/* SALDO NEUTRO */
 
-  font-size: 18px;
+.historico-table-saldo-neutral {
+  display: inline-flex;
+  justify-content: center;
+
+  min-width: 82px;
+
+  padding: 5px 8px;
+
+  color: #5f6865;
+
+  background: #eef2f0;
+
+  border:
+    1px solid
+    #dde5e2;
+
+  border-radius: 6px;
+
+  font-weight: 800;
+}
+
+/* HORAS EXTRAS */
+
+.historico-table-extra {
+  display: inline-flex;
+  justify-content: center;
+
+  min-width: 82px;
+
+  padding: 5px 8px;
+
+  color: #2d6073;
+
+  background:
+    rgba(181, 232, 195, 0.38);
+
+  border:
+    1px solid
+    rgba(101, 184, 166, 0.25);
+
+  border-radius: 6px;
+
+  font-weight: 800;
 }
 
 /* RESPONSIVO */
+
+@media (max-width: 1100px) {
+  .historico-container {
+    max-width: 100%;
+  }
+}
 
 @media (max-width: 900px) {
   .historico-filters-grid {
@@ -901,10 +981,9 @@
 
   .historico-header {
     align-items: flex-start;
-
     flex-direction: column;
 
-    padding: 22px;
+    padding: 20px;
   }
 
   .historico-header h1 {
@@ -913,24 +992,23 @@
 
   .historico-filter-card,
   .historico-summary {
-    padding: 20px;
+    padding: 16px;
 
-    border-radius: 17px;
+    border-radius: 14px;
   }
 
   .historico-summary-grid {
     grid-template-columns: 1fr;
   }
 
-  .historico-day-header {
-    align-items: flex-start;
-
-    flex-direction: column;
+  .historico-full-table-wrapper {
+    border-radius: 12px;
   }
 
-  .historico-day-total {
-    align-items: flex-start;
+  .historico-full-table th,
+  .historico-full-table td {
+    padding: 11px 10px;
 
-    flex-direction: column;
+    font-size: 12px;
   }
 }
