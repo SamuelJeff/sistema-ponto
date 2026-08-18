@@ -4,12 +4,13 @@
   "description": "API do sistema de ponto",
   "main": "src/server.js",
   "scripts": {
-  "dev": "nodemon src/server.js",
-  "start": "knex migrate:latest --env production && node src/server.js",
-  "migrate": "knex migrate:latest",
-  "migrate:status": "knex migrate:status",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
+    "dev": "nodemon src/server.js",
+    "postinstall": "npm rebuild sqlite3 --build-from-source",
+    "start": "knex migrate:latest --env production && node src/server.js",
+    "migrate": "knex migrate:latest",
+    "migrate:status": "knex migrate:status",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
