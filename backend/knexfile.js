@@ -1,20 +1,33 @@
 require("dotenv").config();
 
-module.exports = {
-  development: {
-    client: "sqlite3",
+const baseConfig = {
+  client: "sqlite3",
 
-    connection: {
-      filename:
-        process.env.DATABASE_FILE ||
-        "./src/database/database.sqlite",
-    },
+  connection: {
+    filename:
+      process.env.DATABASE_FILE ||
+      "./src/database/database.sqlite",
+  },
 
-    useNullAsDefault: true,
+  useNullAsDefault: true,
 
-    migrations: {
-      directory:
-        "./src/database/migrations",
+  migrations: {
+    directory: "./src/database/migrations",
+  },
+
+  pool: {
+    afterCreate: (conn, done) => {
+      conn.run(
+        "PRAGMA foreign_keys = ON",
+        (error) => {
+          done(error, conn);
+        }
+      );
     },
   },
+};
+
+module.exports = {
+  development: baseConfig,
+  production: baseConfig,
 };

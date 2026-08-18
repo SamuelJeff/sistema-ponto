@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
   "dev": "nodemon src/server.js",
-  "start": "knex migrate:latest && node src/server.js",
+  "start": "knex migrate:latest --env production && node src/server.js",
   "migrate": "knex migrate:latest",
   "migrate:status": "knex migrate:status",
   "test": "echo \"Error: no test specified\" && exit 1"
