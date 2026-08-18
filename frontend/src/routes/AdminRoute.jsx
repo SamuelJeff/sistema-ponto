@@ -14,7 +14,9 @@ function AdminRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (usuario.cargo !== "Administrador") {
+  const cargosPermitidos = ["CEO", "Administrador"];
+
+  if (!cargosPermitidos.includes(usuario.cargo)) {
     return <Navigate to="/dashboard" replace />;
   }
 

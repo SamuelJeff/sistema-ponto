@@ -10,61 +10,35 @@ class RegistroService {
   };
 
   mensagensErro = {
-    primeiroRegistro:
-      "O primeiro registro do dia deve ser uma entrada.",
+    primeiroRegistro: "O primeiro registro do dia deve ser uma entrada.",
 
-    entradaDuplicada:
-      "Você já registrou a entrada.",
+    entradaDuplicada: "Você já registrou a entrada.",
 
-    diaEncerrado:
-      "O ponto deste dia já foi encerrado.",
+    diaEncerrado: "O ponto deste dia já foi encerrado.",
 
-    sequenciaInvalida:
-      "A sequência de registros é inválida.",
+    sequenciaInvalida: "A sequência de registros é inválida.",
   };
 
   async registrarPonto(userId, tipo) {
-    const ultimoRegistro =
-      await RegistroModel.findLastByUserToday(userId);
+    const ultimoRegistro = await RegistroModel.findLastByUserToday(userId);
 
-    // Primeiro registro do dia
     if (!ultimoRegistro && tipo !== "entrada") {
-      throw new AppError(
-        this.mensagensErro.primeiroRegistro,
-        400
-      );
+      throw new AppError(this.mensagensErro.primeiroRegistro, 400);
     }
 
-    // Já existe registro hoje
     if (ultimoRegistro) {
-      const proximoEsperado =
-        this.proximosRegistros[ultimoRegistro.tipo];
+      const proximoEsperado = this.proximosRegistros[ultimoRegistro.tipo];
 
-      // Dia encerrado
       if (ultimoRegistro.tipo === "saida") {
-        throw new AppError(
-          this.mensagensErro.diaEncerrado,
-          400
-        );
+        throw new AppError(this.mensagensErro.diaEncerrado, 400);
       }
 
-      // Entrada duplicada
-      if (
-        ultimoRegistro.tipo === "entrada" &&
-        tipo === "entrada"
-      ) {
-        throw new AppError(
-          this.mensagensErro.entradaDuplicada,
-          400
-        );
+      if (ultimoRegistro.tipo === "entrada" && tipo === "entrada") {
+        throw new AppError(this.mensagensErro.entradaDuplicada, 400);
       }
 
-      // Sequência inválida
       if (tipo !== proximoEsperado) {
-        throw new AppError(
-          this.mensagensErro.sequenciaInvalida,
-          400
-        );
+        throw new AppError(this.mensagensErro.sequenciaInvalida, 400);
       }
     }
 
@@ -79,10 +53,9 @@ class RegistroService {
     return RegistroModel.findByUserId(userId, filtros);
   }
 
-  async findAllWithUsers() {
-  return RegistroModel.findAllWithUsers();
-}
-
+  async findAllWithUsers(ceoId) {
+    return RegistroModel.findAllWithUsers(ceoId);
+  }
 }
 
 module.exports = new RegistroService();

@@ -1,20 +1,17 @@
 const jwt = require("jsonwebtoken");
+const UserModel = require("../models/UserModel");
 
-function authMiddleware(req, res, next) {
-  // 1. Ler o cabeçalho Authorization
+async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  // 2. Verificar se o Authorization foi enviado
   if (!authHeader) {
     return res.status(401).json({
       message: "Token não informado.",
     });
   }
 
-  // 3. Separar Bearer e token
   const [tipo, token] = authHeader.split(" ");
 
-  // 4. Verificar o formato
   if (tipo !== "Bearer" || !token) {
     return res.status(401).json({
       message: "Formato do token inválido.",
@@ -22,19 +19,29 @@ function authMiddleware(req, res, next) {
   }
 
   try {
-    // 5. Validar o token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 6. Salvar informações do usuário
-    // dentro da requisição
-    req.user = decoded;
+    const usuario = await UserModel.findById(decoded.id);
 
-    // 7. Continuar para a próxima função
+    if (!usuario) {
+      return res.status(401).json({
+        message: "Usuário não encontrado.",
+      });
+    }
+
+    if (!usuario.ativo) {
+      return res.status(403).json({
+        message: "Usuário desativado.",
+      });
+    }
+
+    req.user = {
+      id: usuario.id,
+      cargo: usuario.cargo,
+      ceo_id: usuario.ceo_id,
+    };
+
     next();
-
   } catch (error) {
     console.error(error);
 

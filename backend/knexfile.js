@@ -1,4 +1,3 @@
-// Update with your config settings.
 require("dotenv").config();
 
 module.exports = {
@@ -7,6 +6,7 @@ module.exports = {
 
     connection: {
       filename:
+        process.env.DATABASE_FILE ||
         "./src/database/database.sqlite",
     },
 

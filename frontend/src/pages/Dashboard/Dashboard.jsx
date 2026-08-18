@@ -34,13 +34,9 @@ function Dashboard() {
 
     const ano = agora.getFullYear();
 
-    const mes = String(
-      agora.getMonth() + 1
-    ).padStart(2, "0");
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
 
-    const dia = String(
-      agora.getDate()
-    ).padStart(2, "0");
+    const dia = String(agora.getDate()).padStart(2, "0");
 
     return `${ano}-${mes}-${dia}`;
   }
@@ -49,24 +45,18 @@ function Dashboard() {
     try {
       const dataHoje = obterDataHoje();
 
-      const response = await api.get(
-        "/registros/meus-registros",
-        {
-          params: {
-            data: dataHoje,
-          },
-        }
-      );
+      const response = await api.get("/registros/meus-registros", {
+        params: {
+          data: dataHoje,
+        },
+      });
 
-      setRegistrosHoje(
-        response.data.registros || []
-      );
+      setRegistrosHoje(response.data.registros || []);
     } catch (error) {
       console.error(error);
 
       setErro(
-        error.response?.data?.message ||
-          "Erro ao buscar registros de hoje."
+        error.response?.data?.message || "Erro ao buscar registros de hoje.",
       );
     }
   }
@@ -81,9 +71,7 @@ function Dashboard() {
     setCarregando(true);
 
     try {
-      const response = await api.post(
-        `/registros/${tipo}`
-      );
+      const response = await api.post(`/registros/${tipo}`);
 
       setMensagem(response.data.message);
 
@@ -91,10 +79,7 @@ function Dashboard() {
     } catch (error) {
       console.error(error);
 
-      setErro(
-        error.response?.data?.message ||
-          "Erro ao registrar ponto."
-      );
+      setErro(error.response?.data?.message || "Erro ao registrar ponto.");
     } finally {
       setCarregando(false);
     }
@@ -105,17 +90,9 @@ function Dashboard() {
       return "entrada";
     }
 
-    const ordem = [
-      "entrada",
-      "inicio_almoco",
-      "fim_almoco",
-      "saida",
-    ];
+    const ordem = ["entrada", "inicio_almoco", "fim_almoco", "saida"];
 
-    const tiposRegistrados =
-      registrosHoje.map(
-        (registro) => registro.tipo
-      );
+    const tiposRegistrados = registrosHoje.map((registro) => registro.tipo);
 
     for (const tipo of ordem) {
       if (!tiposRegistrados.includes(tipo)) {
@@ -126,30 +103,44 @@ function Dashboard() {
     return null;
   }
 
-  const proximoRegistro =
-    descobrirProximoRegistro();
+  const proximoRegistro = descobrirProximoRegistro();
+
+  const podeAcessarAdmin = ["CEO", "Administrador"].includes(usuario?.cargo);
 
   return (
     <main className="dashboard-page">
       <div className="dashboard-container">
         <header className="dashboard-header">
-          <div>
-            <p className="dashboard-subtitle">
-              Sistema de Ponto
-            </p>
+  <div>
+    <p className="dashboard-subtitle">
+      Sistema de Ponto
+    </p>
 
-            <h1>
-              Olá, {usuario?.nome}!
-            </h1>
-          </div>
+    <h1>
+      Olá, {usuario?.nome}!
+    </h1>
+  </div>
 
-          <button
-            className="dashboard-logout"
-            onClick={handleLogout}
-          >
-            Sair
-          </button>
-        </header>
+  <div className="dashboard-header-actions">
+    {usuario?.cargo === "CEO" && (
+      <button
+        className="dashboard-register-user"
+        onClick={() =>
+          navigate("/cadastrar-usuario")
+        }
+      >
+        Cadastrar funcionário
+      </button>
+    )}
+
+    <button
+      className="dashboard-logout"
+      onClick={handleLogout}
+    >
+      Sair
+    </button>
+  </div>
+</header>
 
         <section className="dashboard-user-card">
           <div>
@@ -168,9 +159,7 @@ function Dashboard() {
             <div>
               <h2>Registrar ponto</h2>
 
-              <p>
-                Registre as etapas da sua jornada de hoje.
-              </p>
+              <p>Registre as etapas da sua jornada de hoje.</p>
             </div>
           </div>
 
@@ -189,107 +178,55 @@ function Dashboard() {
           <div className="dashboard-punch-grid">
             <button
               className="punch-button"
-              onClick={() =>
-                registrarPonto("entrada")
-              }
-              disabled={
-                carregando ||
-                proximoRegistro !== "entrada"
-              }
+              onClick={() => registrarPonto("entrada")}
+              disabled={carregando || proximoRegistro !== "entrada"}
             >
-              <span className="punch-number">
-                01
-              </span>
+              <span className="punch-number">01</span>
 
-              <span className="punch-title">
-                Entrada
-              </span>
+              <span className="punch-title">Entrada</span>
 
-              <span className="punch-description">
-                Iniciar jornada
-              </span>
+              <span className="punch-description">Iniciar jornada</span>
             </button>
 
             <button
               className="punch-button"
-              onClick={() =>
-                registrarPonto(
-                  "inicio-almoco"
-                )
-              }
-              disabled={
-                carregando ||
-                proximoRegistro !==
-                  "inicio_almoco"
-              }
+              onClick={() => registrarPonto("inicio-almoco")}
+              disabled={carregando || proximoRegistro !== "inicio_almoco"}
             >
-              <span className="punch-number">
-                02
-              </span>
+              <span className="punch-number">02</span>
 
-              <span className="punch-title">
-                Início do almoço
-              </span>
+              <span className="punch-title">Início do almoço</span>
 
-              <span className="punch-description">
-                Iniciar intervalo
-              </span>
+              <span className="punch-description">Iniciar intervalo</span>
             </button>
 
             <button
               className="punch-button"
-              onClick={() =>
-                registrarPonto(
-                  "fim-almoco"
-                )
-              }
-              disabled={
-                carregando ||
-                proximoRegistro !==
-                  "fim_almoco"
-              }
+              onClick={() => registrarPonto("fim-almoco")}
+              disabled={carregando || proximoRegistro !== "fim_almoco"}
             >
-              <span className="punch-number">
-                03
-              </span>
+              <span className="punch-number">03</span>
 
-              <span className="punch-title">
-                Fim do almoço
-              </span>
+              <span className="punch-title">Fim do almoço</span>
 
-              <span className="punch-description">
-                Retornar do intervalo
-              </span>
+              <span className="punch-description">Retornar do intervalo</span>
             </button>
 
             <button
               className="punch-button"
-              onClick={() =>
-                registrarPonto("saida")
-              }
-              disabled={
-                carregando ||
-                proximoRegistro !== "saida"
-              }
+              onClick={() => registrarPonto("saida")}
+              disabled={carregando || proximoRegistro !== "saida"}
             >
-              <span className="punch-number">
-                04
-              </span>
+              <span className="punch-number">04</span>
 
-              <span className="punch-title">
-                Saída
-              </span>
+              <span className="punch-title">Saída</span>
 
-              <span className="punch-description">
-                Encerrar jornada
-              </span>
+              <span className="punch-description">Encerrar jornada</span>
             </button>
           </div>
 
           {proximoRegistro === null && (
-            <div className="dashboard-finished">
-              Jornada de hoje concluída.
-            </div>
+            <div className="dashboard-finished">Jornada de hoje concluída.</div>
           )}
         </section>
 
@@ -300,24 +237,14 @@ function Dashboard() {
           >
             <span>Meu Histórico</span>
 
-            <small>
-              Consulte seus registros e horas trabalhadas.
-            </small>
+            <small>Consulte seus registros e horas trabalhadas.</small>
           </button>
 
-          {usuario?.cargo ===
-            "Administrador" && (
-            <button
-              className="dashboard-navigation-card"
-              onClick={irParaAdmin}
-            >
-              <span>
-                Área Administrativa
-              </span>
+          {podeAcessarAdmin && (
+            <button className="dashboard-navigation-card" onClick={irParaAdmin}>
+              <span>Área Administrativa</span>
 
-              <small>
-                Consulte usuários e registros.
-              </small>
+              <small>Consulte usuários e registros.</small>
             </button>
           )}
         </section>

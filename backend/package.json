@@ -1,10 +1,13 @@
 {
   "name": "sistema-ponto",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API do sistema de ponto",
+  "main": "src/server.js",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "migrate": "knex migrate:latest",
+    "migrate:status": "knex migrate:status",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,7 +21,6 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "knex": "^3.3.0",
-    "pg": "^8.22.0",
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {

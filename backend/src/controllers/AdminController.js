@@ -2,128 +2,116 @@ const RegistroService = require("../services/RegistroService");
 const CalculoHorasService = require("../services/CalculoHorasService");
 const UserModel = require("../models/UserModel");
 
-const {
-  formatarDataRecife,
-} = require("../utils/date");
+const { formatarDataRecife } = require("../utils/date");
 
 class AdminController {
   constructor() {
-    this.registrosUsuario =
-      this.registrosUsuario.bind(this);
+    this.registrosUsuario = this.registrosUsuario.bind(this);
 
-    this.usuarios =
-      this.usuarios.bind(this);
+    this.usuarios = this.usuarios.bind(this);
 
-    this.registros =
-      this.registros.bind(this);
+    this.registros = this.registros.bind(this);
   }
 
-  async registrosUsuario(
-    req,
-    res,
-    next
-  ) {
+  async registrosUsuario(req, res, next) {
     try {
       const { id } = req.params;
 
-      const {
+      const { data, mes, ano, inicio, fim } = req.query;
+
+      const usuario = await UserModel.findById(id);
+
+      if (!usuario) {
+        return res.status(404).json({
+          message: "Usuário não encontrado.",
+        });
+      }
+
+      /*
+       * Descobre qual CEO representa
+       * a conta do usuário autenticado.
+       */
+      const ceoIdLogado =
+        req.user.cargo === "CEO" ? req.user.id : req.user.ceo_id;
+
+      /*
+       * Descobre a qual conta pertence
+       * o usuário que está sendo consultado.
+       */
+      const ceoIdUsuario =
+        usuario.cargo === "CEO" ? usuario.id : usuario.ceo_id;
+
+      /*
+       * Impede acesso entre contas.
+       *
+       * Exemplo:
+       * CEO 1 nunca pode consultar
+       * usuário pertencente ao CEO 2.
+       */
+      if (Number(ceoIdLogado) !== Number(ceoIdUsuario)) {
+        return res.status(403).json({
+          message: "Você não possui permissão para visualizar este usuário.",
+        });
+      }
+
+      /*
+       * Administrador pode visualizar
+       * Administradores e Funcionários,
+       * mas não o CEO.
+       */
+      if (req.user.cargo === "Administrador" && usuario.cargo === "CEO") {
+        return res.status(403).json({
+          message: "Você não possui permissão para visualizar este usuário.",
+        });
+      }
+
+      const jornadaDiariaMinutos = usuario.jornada_diaria_minutos ?? 480;
+
+      const registros = await RegistroService.meusRegistros(id, {
         data,
         mes,
         ano,
         inicio,
         fim,
-      } = req.query;
+      });
 
-      /*
-       * Busca o usuário cujo histórico
-       * o administrador está consultando.
-       */
-      const usuario =
-        await UserModel.findById(id);
+      const registrosFormatados = registros.map((registro) => ({
+        tipo: registro.tipo,
 
-      if (!usuario) {
-        return res.status(404).json({
-          message:
-            "Usuário não encontrado.",
-        });
-      }
+        data_hora: formatarDataRecife(registro.data_hora),
+      }));
 
-      /*
-       * Jornada do próprio funcionário.
-       * 480 minutos = 8 horas.
-       */
-      const jornadaDiariaMinutos =
-        usuario.jornada_diaria_minutos ??
-        480;
-
-      const registros =
-        await RegistroService.meusRegistros(
-          id,
-          {
-            data,
-            mes,
-            ano,
-            inicio,
-            fim,
-          }
-        );
-
-      const registrosFormatados =
-        registros.map(
-          (registro) => ({
-            tipo:
-              registro.tipo,
-
-            data_hora:
-              formatarDataRecife(
-                registro.data_hora
-              ),
-          })
-        );
-
-      /*
-       * Passamos a jornada do funcionário
-       * para o cálculo.
-       */
-      const calculos =
-        CalculoHorasService
-          .calcularHorasPorDia(
-            registros,
-            jornadaDiariaMinutos
-          );
+      const calculos = CalculoHorasService.calcularHorasPorDia(
+        registros,
+        jornadaDiariaMinutos,
+      );
 
       let resumoMensal = null;
 
       if (mes && ano) {
-        resumoMensal =
-          CalculoHorasService
-            .calcularResumoMensal(
-              calculos,
-              mes,
-              ano
-            );
+        resumoMensal = CalculoHorasService.calcularResumoMensal(
+          calculos,
+          mes,
+          ano,
+        );
       }
 
       return res.status(200).json({
         usuario: {
-          id:
-            usuario.id,
+          id: usuario.id,
 
-          nome:
-            usuario.nome,
+          nome: usuario.nome,
 
-          email:
-            usuario.email,
+          email: usuario.email,
 
-          cargo:
-            usuario.cargo,
+          cargo: usuario.cargo,
 
-          jornada_diaria_minutos:
-            jornadaDiariaMinutos,
+          jornada_diaria_minutos: jornadaDiariaMinutos,
+
+          ativo: usuario.ativo,
         },
 
-        registros:
-          registrosFormatados,
+        registros: registrosFormatados,
 
         calculos,
 
@@ -136,12 +124,33 @@ class AdminController {
 
   async usuarios(req, res, next) {
     try {
-      const usuarios =
-        await UserModel.findAll();
+      /*
+       * CEO usa o próprio ID.
+       *
+       * Administrador usa o ceo_id
+       * ao qual pertence.
+       */
+      const ceoId = req.user.cargo === "CEO" ? req.user.id : req.user.ceo_id;
 
-      return res
-        .status(200)
-        .json(usuarios);
+      /*
+       * Busca SOMENTE usuários
+       * cadastrados por esse CEO.
+       *
+       * O próprio CEO não entra,
+       * porque seu ceo_id é null.
+       */
+      let usuarios = await UserModel.findByCeoId(ceoId);
+
+      /*
+       * Remove o próprio administrador
+       * da listagem.
+       *
+       * Ele consulta o próprio histórico
+       * pela área pessoal.
+       */
+      usuarios = usuarios.filter((usuario) => usuario.id !== req.user.id);
+
+      return res.status(200).json(usuarios);
     } catch (error) {
       next(error);
     }
@@ -149,42 +158,36 @@ class AdminController {
 
   async registros(req, res, next) {
     try {
-      const registros =
-        await RegistroService
-          .findAllWithUsers();
+      /*
+       * Identifica a conta atual.
+       */
+      const ceoId = req.user.cargo === "CEO" ? req.user.id : req.user.ceo_id;
 
-      const registrosFormatados =
-        registros.map(
-          (registro) => ({
-            nome:
-              registro.nome,
+      /*
+       * Na próxima alteração,
+       * RegistroService usará esse ceoId
+       * para buscar somente os registros
+       * dos usuários dessa conta.
+       */
+      const registros = await RegistroService.findAllWithUsers(ceoId);
 
-            email:
-              registro.email,
+      const registrosFormatados = registros.map((registro) => ({
+        nome: registro.nome,
 
-            cargo:
-              registro.cargo,
+        email: registro.email,
 
-            tipo:
-              registro.tipo,
+        cargo: registro.cargo,
 
-            data_hora:
-              formatarDataRecife(
-                registro.data_hora
-              ),
-          })
-        );
+        tipo: registro.tipo,
 
-      return res
-        .status(200)
-        .json(
-          registrosFormatados
-        );
+        data_hora: formatarDataRecife(registro.data_hora),
+      }));
+
+      return res.status(200).json(registrosFormatados);
     } catch (error) {
       next(error);
     }
   }
 }
 
-module.exports =
-  new AdminController();
+module.exports = new AdminController();

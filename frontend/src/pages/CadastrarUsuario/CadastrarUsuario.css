@@ -1,0 +1,583 @@
+.register-user-page {
+  position: relative;
+
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px;
+
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    #1f192f 0%,
+    #2d6073 45%,
+    #65b8a6 100%
+  );
+}
+
+/* CÍRCULO SUPERIOR */
+
+.register-user-page::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  top: -140px;
+  left: -120px;
+
+  border-radius: 50%;
+
+  background: rgba(181, 232, 195, 0.16);
+
+  border: 1px solid rgba(240, 247, 218, 0.18);
+
+  backdrop-filter: blur(4px);
+}
+
+/* CÍRCULO INFERIOR */
+
+.register-user-page::after {
+  content: "";
+
+  position: absolute;
+
+  width: 520px;
+  height: 520px;
+
+  right: -180px;
+  bottom: -220px;
+
+  border-radius: 50%;
+
+  background: rgba(240, 247, 218, 0.12);
+
+  border: 1px solid rgba(181, 232, 195, 0.18);
+}
+
+/* CONTAINER */
+
+.register-user-container {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+  max-width: 460px;
+}
+
+/* FIGURA SUPERIOR */
+
+.register-user-container::before {
+  content: "✦";
+
+  position: absolute;
+
+  top: -55px;
+  right: -55px;
+
+  color: rgba(240, 247, 218, 0.7);
+
+  font-size: 46px;
+
+  transform: rotate(18deg);
+
+  z-index: -1;
+}
+
+/* FIGURA LATERAL */
+
+.register-user-container::after {
+  content: "×";
+
+  position: absolute;
+
+  left: -70px;
+  bottom: 40px;
+
+  color: rgba(181, 232, 195, 0.6);
+
+  font-size: 58px;
+  font-weight: 300;
+
+  transform: rotate(15deg);
+
+  z-index: -1;
+}
+
+/* CARD */
+
+.register-user-card {
+  position: relative;
+
+  width: 100%;
+
+  padding: 42px;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid rgba(255, 255, 255, 0.65);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 30px 70px
+    rgba(31, 25, 47, 0.3);
+
+  backdrop-filter: blur(14px);
+}
+
+/* CÍRCULO NO CANTO DO CARD */
+
+.register-user-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 130px;
+  height: 130px;
+
+  right: -55px;
+  top: -55px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    rgba(101, 184, 166, 0.7),
+    rgba(181, 232, 195, 0.4)
+  );
+
+  pointer-events: none;
+}
+
+/* QUADRADO DECORATIVO */
+
+.register-user-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 42px;
+  height: 42px;
+
+  left: 22px;
+  bottom: 22px;
+
+  border: 3px solid rgba(45, 96, 115, 0.08);
+
+  transform: rotate(45deg);
+
+  border-radius: 10px;
+
+  pointer-events: none;
+}
+
+/* LOGO SP */
+
+.register-user-card-decoration {
+  position: relative;
+
+  z-index: 2;
+
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 20px;
+
+  border-radius: 18px;
+
+  background: linear-gradient(
+    135deg,
+    #2d6073,
+    #65b8a6
+  );
+
+  box-shadow:
+    0 10px 24px
+    rgba(45, 96, 115, 0.3);
+}
+
+.register-user-card-decoration::before {
+  content: "SP";
+
+  color: #ffffff;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+}
+
+/* BRILHO DA LOGO */
+
+.register-user-card-decoration::after {
+  content: "";
+
+  position: absolute;
+
+  width: 10px;
+  height: 10px;
+
+  top: 8px;
+  right: 8px;
+
+  border-radius: 50%;
+
+  background: #f0f7da;
+
+  box-shadow:
+    0 0 12px
+    rgba(240, 247, 218, 0.9);
+}
+
+/* CABEÇALHO */
+
+.register-user-header {
+  position: relative;
+
+  z-index: 2;
+
+  margin: 0 0 32px;
+
+  text-align: center;
+}
+
+.register-user-header h1 {
+  margin: 0 0 8px;
+
+  color: #1f192f;
+
+  font-size: 30px;
+  font-weight: 800;
+
+  letter-spacing: -0.6px;
+}
+
+.register-user-description {
+  max-width: 300px;
+
+  margin: 0 auto;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.55;
+}
+
+/* FORMULÁRIO */
+
+.register-user-form {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.register-user-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.register-user-field label {
+  color: #1f192f;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.register-user-field input,
+.register-user-field select {
+  width: 100%;
+
+  padding: 13px 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dbe4e1;
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  color: #1f192f;
+
+  outline: none;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.register-user-field input::placeholder {
+  color: #9ca3af;
+}
+
+.register-user-field input:focus,
+.register-user-field select:focus {
+  border-color: #65b8a6;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(101, 184, 166, 0.16);
+
+  transform: translateY(-1px);
+}
+
+.register-user-field input:disabled,
+.register-user-field select:disabled {
+  background: #f2f4f7;
+
+  color: #98a2b3;
+
+  cursor: not-allowed;
+}
+
+/* TEXTO AUXILIAR */
+
+.register-user-field small {
+  color: #858b96;
+
+  font-size: 11px;
+
+  line-height: 1.45;
+}
+
+/* CARGO + JORNADA */
+
+.register-user-row {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 14px;
+}
+
+/* MENSAGENS */
+
+.register-user-message {
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.register-user-error {
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+
+  color: #b42318;
+}
+
+.register-user-success {
+  border: 1px solid #bbf7d0;
+
+  background: #f0fdf4;
+
+  color: #15803d;
+}
+
+/* AÇÕES */
+
+.register-user-actions {
+  display: flex;
+  flex-direction: column-reverse;
+
+  gap: 10px;
+
+  margin-top: 4px;
+}
+
+/* BOTÃO CADASTRAR */
+
+.register-user-submit {
+  position: relative;
+
+  width: 100%;
+
+  padding: 13px 18px;
+
+  overflow: hidden;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    135deg,
+    #2d6073,
+    #65b8a6
+  );
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  letter-spacing: 0.02em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px
+    rgba(45, 96, 115, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+/* BRILHO DO BOTÃO */
+
+.register-user-submit::before {
+  content: "";
+
+  position: absolute;
+
+  width: 60px;
+  height: 180%;
+
+  top: -40%;
+  left: -100px;
+
+  transform: rotate(18deg);
+
+  background: rgba(255, 255, 255, 0.18);
+
+  transition: left 0.45s;
+}
+
+.register-user-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 25px
+    rgba(45, 96, 115, 0.3);
+
+  filter: saturate(1.08);
+}
+
+.register-user-submit:hover:not(:disabled)::before {
+  left: 115%;
+}
+
+.register-user-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* VOLTAR */
+
+.register-user-cancel {
+  align-self: center;
+
+  padding: 6px 12px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #2d6073;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.register-user-cancel:hover:not(:disabled) {
+  background: rgba(101, 184, 166, 0.14);
+
+  color: #1f192f;
+
+  transform: translateY(-1px);
+}
+
+.register-user-submit:disabled,
+.register-user-cancel:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 600px) {
+  .register-user-page {
+    padding: 20px;
+  }
+
+  .register-user-container {
+    max-width: 430px;
+  }
+
+  .register-user-card {
+    padding: 32px 24px;
+
+    border-radius: 20px;
+  }
+
+  .register-user-card-decoration {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 16px;
+  }
+
+  .register-user-header h1 {
+    font-size: 26px;
+  }
+
+  .register-user-row {
+    grid-template-columns: 1fr;
+  }
+
+  .register-user-container::before,
+  .register-user-container::after {
+    display: none;
+  }
+
+  .register-user-page::before {
+    width: 280px;
+    height: 280px;
+  }
+
+  .register-user-page::after {
+    width: 340px;
+    height: 340px;
+  }
+}

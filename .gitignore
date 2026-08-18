@@ -1,22 +1,111 @@
-# Dependências
+# =========================
+# DEPENDÊNCIAS
+# =========================
+
 node_modules/
 
-# Variáveis de ambiente
+
+# =========================
+# VARIÁVEIS DE AMBIENTE
+# =========================
+
 .env
 .env.*
+!.env.example
 
-# Logs
+backend/.env
+frontend/.env
+
+backend/.env.*
+frontend/.env.*
+
+!backend/.env.example
+!frontend/.env.example
+
+# =========================
+# BANCO DE DADOS LOCAL
+# =========================
+
+*.sqlite
+*.sqlite3
+*.db
+
+src/database/database.sqlite
+src/database/*.sqlite
+src/database/*.sqlite3
+
+backend/src/database/database.sqlite
+backend/src/database/*.sqlite
+backend/src/database/*.sqlite3
+
+
+# =========================
+# LOGS
+# =========================
+
 logs/
 *.log
-npm-debug.log*
 
-# Arquivos temporários
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# =========================
+# ARQUIVOS TEMPORÁRIOS
+# =========================
+
 tmp/
 temp/
 
-# Build
+*.tmp
+*.temp
+
+
+# =========================
+# BUILD
+# =========================
+
 dist/
 build/
 
-# Cache
+frontend/dist/
+backend/dist/
+
+
+# =========================
+# CACHE
+# =========================
+
 .cache/
+.vite/
+
+.eslintcache
+
+
+
+
+# =========================
+# SISTEMA OPERACIONAL
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# =========================
+# EDITORES / IDE
+# =========================
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+
+
+
+

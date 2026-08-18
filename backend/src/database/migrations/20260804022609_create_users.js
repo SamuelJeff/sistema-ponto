@@ -7,8 +7,23 @@ exports.up = function (knex) {
         .primary();
 
       table
+        .integer("ceo_id")
+        .unsigned()
+        .nullable();
+
+      table
+        .foreign("ceo_id")
+        .references("id")
+        .inTable("users")
+        .onDelete("CASCADE");
+
+      table
         .string("nome")
         .notNullable();
+
+      table
+        .string("nome_empresa")
+        .nullable();
 
       table
         .string("email")
@@ -29,6 +44,15 @@ exports.up = function (knex) {
         )
         .notNullable()
         .defaultTo(480);
+
+      table
+        .boolean("ativo")
+        .notNullable()
+        .defaultTo(true);
+
+      table
+        .string("status_assinatura")
+        .nullable();
 
       table
         .timestamp("created_at")
